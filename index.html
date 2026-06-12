@@ -1,59 +1,782 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Family Baby Care V8</title><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><style>
-body{font-family:Arial,sans-serif;background:#f7f2ff;color:#1f1235;margin:0;padding:14px;line-height:1.45}button,input,select,textarea{font-size:18px;padding:12px;margin:6px 0;width:100%;box-sizing:border-box;border-radius:12px}button{background:#efe4ff;border:2px solid #8a63c7;color:#1f1235}input,select,textarea{border:2px solid #8a63c7}.screen{display:none}.active{display:block}.card{background:white;border:2px solid #d8c4ff;border-radius:14px;padding:12px;margin:10px 0}.notice{background:#fff8d6;border:2px solid #d7b900;border-radius:12px;padding:10px;margin:10px 0}.good{background:#e7ffe7;border:2px solid #43a047;border-radius:12px;padding:10px;margin:10px 0}.world{height:56vh;min-height:340px;border:3px solid #8a63c7;border-radius:18px;background:white;position:relative;touch-action:none;margin:10px 0;overflow:hidden}.obj{position:absolute;border:2px solid #d8c4ff;border-radius:12px;background:#f5eeff;padding:4px;font-size:13px;text-align:center;box-sizing:border-box}.childObj{background:#fff8d6;border-color:#d7b900}.petObj{background:#e7ffe7;border-color:#43a047}.personObj{background:#e9f3ff;border-color:#3587c9}.target{outline:4px solid #43a047}.row{display:flex;gap:8px}.row button{width:50%}.big{font-size:22px;font-weight:bold}.driving{background:#111;color:white;border-color:#555}
-</style></head><body><h1>Family Baby Care V8</h1>
-<div id="home" class="screen active"><div class="good"><strong>Version:</strong> V8 living family simulator. <span id="jsStatus">JavaScript not loaded yet.</span></div><div class="card">V8 adds Home travel, phone/text, Grandma as a real character, stronger conversations, illness/allergy systems, school/nursery/doctor/hospital upgrades, and better sound logic.</div><button onclick="alert('Buttons work. JavaScript is responding.')">Test Buttons</button><button onclick="show('setup')">New Family</button><button onclick="loadGame()">Continue Family</button><button onclick="show('settings')">Settings</button><button onclick="show('help')">How To Play</button></div>
-<div id="setup" class="screen"><h2>New Family</h2><input id="familyName" placeholder="Family name"><label>Starting family</label><select id="startType"><option value="none">No children yet</option><option value="baby">One baby</option><option value="child">One child</option><option value="multiple">Baby and child</option><option value="pregnant">Pregnant</option></select><label>Mode</label><select id="accessMode"><option value="explore">Touch explore mode</option><option value="buttons">VoiceOver button mode</option></select><button onclick="createGame()">Create Family</button><button onclick="show('home')">Back</button></div>
-<div id="game" class="screen"><h2 id="roomTitle"></h2><div id="status" class="notice"></div><div id="world" class="world" aria-label="Touch exploration area"></div><div id="focus" class="card"></div><div id="carryCard" class="card"></div><div class="row"><button onclick="prevRoom()">Previous Room</button><button onclick="nextRoom()">Next Room</button></div><button onclick="interact()">Double Tap / Interact</button><button onclick="useOrPlace()">Use Carried Item / Place</button><button onclick="whereAmI()">Where Am I?</button><button onclick="callChild()">Call Child</button><button onclick="findFamily()">Find Family</button><button onclick="openFamily()">Family</button><button onclick="openPhone()">Phone</button><button onclick="show('travel')">Travel</button><button onclick="openBag()">Bag / Money</button><button onclick="saveGame()">Save</button></div>
-<div id="containerScreen" class="screen"><h2 id="containerTitle"></h2><div class="notice" id="containerInfo"></div><div id="containerWorld" class="world" aria-label="Container exploration area"></div><div id="containerFocus" class="card"></div><button onclick="takeContainerItem()">Take / Add Selected Item</button><button onclick="closeContainer()">Close</button></div>
-<div id="family" class="screen"><h2>Family</h2><div id="familyList"></div><button onclick="show('adoption')">Adopt Child</button><button onclick="addPet('dog')">Adopt Dog</button><button onclick="addPet('cat')">Adopt Cat</button><button onclick="togglePregnancy()">Pregnancy</button><button onclick="showGame()">Back</button></div>
-<div id="adoption" class="screen"><h2>Adoption</h2><input id="adoptName" placeholder="Child name"><select id="adoptAge"></select><select id="adoptDifference"><option>none</option><option>autistic</option><option>ADHD</option><option>blind</option><option>deaf</option><option>non-speaking</option><option>limited mobility</option></select><button onclick="adoptChild()">Adopt</button><button onclick="openFamily()">Back</button></div>
-<div id="childScreen" class="screen"><h2 id="childTitle"></h2><div id="childInfo" class="card"></div><button onclick="talkToChild()">Talk</button><button onclick="checkChild()">Check</button><button onclick="carrySelected()">Pick Up</button><button onclick="enrollSelected()">Enroll In School/Nursery</button><button onclick="showGame()">Back To Room</button><button onclick="openFamily()">Back To Family</button></div>
-<div id="phone" class="screen"><h2>Phone</h2><div id="phoneInfo" class="card"></div><button onclick="phoneContact('Grandma')">Call/Text Grandma</button><button onclick="phoneContact('School')">Call/Text School</button><button onclick="phoneContact('Nursery')">Call/Text Nursery</button><button onclick="phoneContact('Doctor')">Call/Text Doctor</button><button onclick="phoneContact('Hospital')">Call/Text Hospital</button><button onclick="showGame()">Back</button></div>
-<div id="conversation" class="screen"><h2 id="conversationTitle">Conversation</h2><div id="conversationLog" class="card"></div><textarea id="replyBox" rows="4" placeholder="Type what your character says"></textarea><button onclick="sendReply()">Say / Send</button><button onclick="closeConversation()">Back</button></div>
-<div id="travel" class="screen"><h2>Travel</h2><div class="card">Home is always available. Before driving, put babies/toddlers in car seats or arrange babysitting.</div><button onclick="prepareCar()">Go To Car / Check Passengers</button><button onclick="startDriving()">Start Driving</button><button onclick="goPlace('home')">Return Home Now</button><button onclick="showGame()">Back</button></div>
-<div id="carScreen" class="screen"><h2>Car</h2><div id="carInfo" class="card"></div><button onclick="putCurrentChildInCar()">Put Selected Child In Car Seat</button><button onclick="takeChildOutOfCar()">Take Child Out Of Car</button><button onclick="takeShoppingFromBoot()">Take Shopping From Boot</button><button onclick="startDriving()">Start Driving</button><button onclick="showGame()">Back</button></div>
-<div id="drive" class="screen"><h2>Driving</h2><div class="card driving"><p class="big" id="drivePrompt">Car ready.</p><p id="driveStatus"></p></div><button onclick="requestMotion()">Enable Tilt Driving</button><button onclick="driveLeft()">Turn Left</button><button onclick="driveStraight()">Continue Straight</button><button onclick="driveRight()">Turn Right</button><button onclick="stopDriving()">Stop Car / Get Out</button></div>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Family Baby Care V10</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<style>
+body{font-family:Arial,sans-serif;background:#f7f2ff;color:#1f1235;margin:0;padding:14px;line-height:1.45}
+button,input,select,textarea{font-size:18px;padding:12px;margin:6px 0;width:100%;box-sizing:border-box;border-radius:12px}
+button{background:#efe4ff;border:2px solid #8a63c7;color:#1f1235}
+input,select,textarea{border:2px solid #8a63c7}
+.screen{display:none}.active{display:block}
+.card{background:white;border:2px solid #d8c4ff;border-radius:14px;padding:12px;margin:10px 0}
+.notice{background:#fff8d6;border:2px solid #d7b900;border-radius:12px;padding:10px;margin:10px 0}
+.good{background:#e7ffe7;border:2px solid #43a047;border-radius:12px;padding:10px;margin:10px 0}
+.world{height:56vh;min-height:340px;border:3px solid #8a63c7;border-radius:18px;background:white;position:relative;touch-action:none;margin:10px 0;overflow:hidden}
+.obj{position:absolute;border:2px solid #d8c4ff;border-radius:12px;background:#f5eeff;padding:4px;font-size:13px;text-align:center;box-sizing:border-box}
+.childObj{background:#fff8d6;border-color:#d7b900}.petObj{background:#e7ffe7;border-color:#43a047}.personObj{background:#e9f3ff;border-color:#3587c9}.doorObj{background:#fff0e6;border-color:#d86b21}
+.target{outline:4px solid #43a047}.big{font-size:22px;font-weight:bold}.driving{background:#111;color:white;border-color:#555}
+</style>
+</head>
+<body>
+<h1>Family Baby Care V10</h1>
+
+<div id="home" class="screen active">
+ <div class="good"><strong>Version:</strong> V10 living world edition. <span id="jsStatus">JavaScript not loaded yet.</span></div>
+ <div class="card">V10 is the living world edition: real-time world progression while the app is closed, generated-style conversations, age-based child movement, deeper illness chains, hospital wards, school, nursery, Grandma routines, pregnancy, birth, emergencies, pets, relationships, memories and sound-first town navigation.</div>
+ <button onclick="alert('Buttons work. JavaScript is responding.')">Test Buttons</button>
+ <button onclick="show('setup')">New Family</button>
+ <button onclick="loadGame()">Continue Family</button>
+ <button onclick="show('settings')">Settings</button>
+ <button onclick="show('help')">How To Play</button>
+</div>
+
+<div id="setup" class="screen">
+ <h2>New Family</h2>
+ <input id="playerName" placeholder="Your character name">
+ <input id="playerAge" type="number" value="24" placeholder="Your character age">
+ <input id="familyName" placeholder="Family name">
+ <label>Starting family</label>
+ <select id="startType">
+  <option value="none">No children yet</option>
+  <option value="baby">One baby</option>
+  <option value="child">One child</option>
+  <option value="multiple">Baby and child</option>
+  <option value="pregnant">Pregnant</option>
+ </select>
+ <button onclick="createGame()">Create Family</button>
+ <button onclick="show('home')">Back</button>
+</div>
+
+<div id="game" class="screen">
+ <h2 id="placeTitle"></h2>
+ <div id="status" class="notice"></div>
+ <div id="world" class="world" aria-label="Touch exploration area"></div>
+ <div id="focus" class="card"></div>
+ <div id="carryCard" class="card"></div>
+ <button onclick="interact()">Double Tap / Interact</button>
+ <button onclick="useOrPlace()">Use Carried Item / Place</button>
+ <button onclick="whereAmI()">Where Am I?</button>
+ <button onclick="listen()">Listen</button>
+ <button onclick="callFamily()">Call Out</button>
+ <button onclick="openFamily()">Family</button>
+ <button onclick="openPhone()">Phone</button>
+ <button onclick="openBag()">Bag / Money</button>
+ <button onclick="restPlayer()">Rest</button>
+ <button onclick="dailyRoutine()">Do Family Routine</button>
+ <button onclick="startSchoolDay()">Start School/Nursery Day</button>
+ <button onclick="pickupAll()">Pick Up Children</button>
+ <button onclick="openReports()">Reports</button>
+ <button onclick="openMemories()">Memories</button>
+ <button onclick="openMap()">Town Map</button>
+ <button onclick="openWorldSummary()">World Summary</button>
+ <button onclick="saveGame()">Save</button>
+</div>
+
+<div id="containerScreen" class="screen">
+ <h2 id="containerTitle"></h2>
+ <div id="containerInfo" class="notice"></div>
+ <div id="containerWorld" class="world"></div>
+ <div id="containerFocus" class="card"></div>
+ <button onclick="takeContainerItem()">Take / Add Selected Item</button>
+ <button onclick="closeContainer()">Close</button>
+</div>
+
+<div id="family" class="screen"><h2>Family</h2><div id="familyList"></div><button onclick="showGame()">Back</button></div>
+
+<div id="phone" class="screen">
+ <h2>Phone</h2><div id="phoneInfo" class="card"></div>
+ <button onclick="phoneContact('Grandma')">Call/Text Grandma</button>
+ <button onclick="phoneContact('School')">Call/Text School</button>
+ <button onclick="phoneContact('Nursery')">Call/Text Nursery</button>
+ <button onclick="phoneContact('Doctor')">Call/Text Doctor</button>
+ <button onclick="phoneContact('Hospital')">Call/Text Hospital</button>
+ <button onclick="phoneContact('Police')">Call Police</button>
+ <button onclick="phoneContact('Fire Service')">Call Fire Service</button>
+ <button onclick="phoneContact('Adoption Centre')">Call/Text Adoption Centre</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="conversation" class="screen">
+ <h2 id="conversationTitle">Conversation</h2>
+ <div id="conversationLog" class="card"></div>
+ <textarea id="replyBox" rows="4" placeholder="Type what your character says"></textarea>
+ <button onclick="sendReply()">Say / Send</button>
+ <button onclick="closeConversation()">Back</button>
+</div>
+
+<div id="childScreen" class="screen">
+ <h2 id="childTitle"></h2><div id="childInfo" class="card"></div>
+ <button onclick="talkToChild()">Talk</button>
+ <button onclick="checkChild()">Check</button>
+ <button onclick="carrySelected()">Pick Up</button>
+ <button onclick="enrollSelected()">Enroll In School/Nursery</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="adoptionScreen" class="screen">
+ <h2>Adoption Centre</h2>
+ <div class="notice">Meet generated children here. Staff can explain age, personality, allergies and differences.</div>
+ <div id="adoptionList" class="card"></div>
+ <button onclick="generateAdoptionChildren(true)">Refresh Children</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="carScreen" class="screen">
+ <h2>Car</h2><div id="carInfo" class="card"></div>
+ <button onclick="putCurrentChildInCar()">Put Selected Child In Car Seat</button>
+ <button onclick="takeChildOutOfCar()">Take Child Out Of Car</button>
+ <button onclick="takeAllChildrenOut()">Take All Children Out</button>
+ <button onclick="takeShoppingFromBoot()">Take Shopping From Boot</button>
+ <button onclick="startDriving()">Start Driving</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="drive" class="screen">
+ <h2>Driving</h2>
+ <div class="card driving"><p class="big" id="drivePrompt">Car ready.</p><p id="driveStatus"></p></div>
+ <button onclick="requestMotion()">Enable Tilt Driving</button>
+ <button onclick="driveLeft()">Turn Left</button>
+ <button onclick="driveStraight()">Continue Straight</button>
+ <button onclick="driveRight()">Turn Right</button>
+ <button onclick="stopDriving()">Stop Car / Get Out</button>
+</div>
+
 <div id="bag" class="screen"><h2>Bag and Money</h2><div id="bagInfo" class="card"></div><button onclick="showGame()">Back</button></div>
-<div id="settings" class="screen"><h2>Settings</h2><button onclick="toggleSpeech()">Toggle Voice</button><button onclick="toggleSounds()">Toggle Sounds</button><button onclick="toggleMode()">Toggle Explore/Button Mode</button><button onclick="resetGame()">Delete Save</button><button onclick="show('home')">Back</button></div>
-<div id="help" class="screen"><h2>How To Play</h2><div class="card"><p>Explore by dragging your finger with VoiceOver off. Containers open into explorable spaces. Shop items go into the trolley. Trolleys are pushed, not carried.</p><p>Your character speaks only when you type. NPCs give role-specific replies instead of just saying thank you.</p><p>Baby sounds match state: upset cries, happy babbles/laughs, asleep snores, ill uses illness sounds.</p><p>Consequences are realistic: repeated ignored illness, school pickup, severe allergies, money and childcare issues can worsen.</p></div><button onclick="show('home')">Back</button></div>
+
+<div id="reports" class="screen">
+ <h2>Reports</h2>
+ <div id="reportsInfo" class="card"></div>
+ <button onclick="showGame()">Back</button>
+</div>
+
+
+
+<div id="memories" class="screen">
+ <h2>Memories</h2>
+ <div id="memoriesInfo" class="card"></div>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="mapScreen" class="screen">
+ <h2>Town Map</h2>
+ <div class="card">This is here for VoiceOver users, but the main game still works by finding doors and paths.</div>
+ <button onclick="goArea('living')">Home</button>
+ <button onclick="goArea('shop')">Supermarket</button>
+ <button onclick="goArea('school')">School</button>
+ <button onclick="goArea('nurseryPlace')">Nursery</button>
+ <button onclick="goArea('doctor')">Doctor</button>
+ <button onclick="goArea('hospital')">Hospital</button>
+ <button onclick="goArea('adoption')">Adoption Centre</button>
+ <button onclick="goArea('shelter')">Animal Shelter</button>
+ <button onclick="goArea('park')">Park</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+
+<div id="worldSummary" class="screen">
+ <h2>World Summary</h2>
+ <div id="worldSummaryInfo" class="card"></div>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="settings" class="screen">
+ <h2>Settings</h2>
+ <button onclick="toggleSpeech()">Toggle Voice</button>
+ <button onclick="toggleSounds()">Toggle Sounds</button>
+ <button onclick="resetGame()">Delete Save</button>
+ <button onclick="show('home')">Back</button>
+</div>
+
+<div id="help" class="screen">
+ <h2>How To Play</h2>
+ <div class="card">
+  <p>Move by finding doors, paths, stairs, streets, cars and buildings. No Previous Room / Next Room buttons.</p>
+  <p>Touch exploration works best with VoiceOver off. Drag your finger to hear what is in the place.</p>
+  <p>Time advances by actions, not constantly. Grandma should no longer run away while you are trying to find her.</p>
+  <p>Use Listen to hear nearby people, children, pets and useful environmental cues.</p>
+  <p>At the shop, get a trolley. Babies and toddlers can go in the trolley child seat after you take them out of the car.</p>
+  <p>Doctors and hospitals can now actually move a child into treatment, triage, admission, discharge and recovery instead of only asking questions.</p><p>Adoption children can be touched in the adoption centre as world objects, then adopted from the adoption screen.</p><p>Children can move around the home after actions, but time no longer runs constantly while you are searching.</p>
+ </div>
+ <button onclick="show('home')">Back</button>
+</div>
+
 <script>
-const S={birds:'11325622-bird-sounds-241394.mp3',hairbrush:'54570407-hair-brushing-sound-481687.mp3',bath:'alex_jauk-bathtub-filling-sound-195144.mp3',microwave:'alex_jauk-microwaving-207596.mp3',supermarket:'alex_jauk-supermarket-ambience-sounds-518582.mp3',toothbrush:'alex_jauk-tooth-brushing-sound-195619.mp3',tv:'arunangshubanerjee-tv-playing-in-the-next-room-distant-and-indistinct-television-sound-360697.mp3',blanket:'arunangshubanerjee-woman-getting-into-bed-blanket-friction-sound-341380.mp3',cry:'bahyudinnor-heartbreaking-baby-crying-sound-effect-realistic-amp-high-quality-311648.mp3',beep:'cartoon-music-game-sfx-cash-register-scanner-single-beep-494483.mp3',cash:'dragon-studio-cash-register-kaching-376867.mp3',rain:'dragon-studio-copyright-free-rain-sounds-331497.mp3',cat:'dragon-studio-cute-cat-meow-472372.mp3',dog:'dragon-studio-dog-bark-sound-effect-322989.mp3',footsteps:'dragon-studio-footsteps-on-wood-397989.mp3',light:'dragon-studio-light-switch-on-382714.mp3',carDoorOpen:'dragon-studio-open-car-door-372469.mp3',purr:'dragon-studio-purring-cat-401727.mp3',vomit:'dragon-studio-vomiting-sound-effect-382720.mp3',splash:'dragon-studio-water-splash-effect-443133.mp3',childLaugh:'floraphonic-child-laughter-3-186730.mp3',squeak:'floraphonic-cute-animal-squeak-1-188097.mp3',mobile:'freesound_community-baby-music-mobile-23893.mp3',baby:'freesound_community-baby-noises-60911.mp3',snore:'freesound_community-baby-snoring-snore-sleeping-breathing-79536.mp3',burp:'freesound_community-burp-104984.mp3',classroom:'freesound_community-classroom-32941.mp3',clothes:'freesound_community-clothes-rustling-2-6286.mp3',crockery:'freesound_community-crockery-and-cutlery-19823.mp3',drink:'freesound_community-drinking-water-from-a-glass-44654.mp3',fridgeClose:'freesound_community-fridge-close-80052.mp3',fridgeOpen:'freesound_community-fridge-open-80053.mp3',wipes:'freesound_community-opening-cheese-slice-packet-75858.mp3',cupboard:'freesound_community-opening-cupboard-37521.mp3',paper:'freesound_community-paper-sound-39259.mp3',trolley:'freesound_community-pushing-grocery-cart-63821.mp3',rattle:'freesound_community-rattle-46377.mp3',restaurant:'freesound_community-restaurant-sounds-22945.mp3',sneeze:'freesound_community-sneeze-female-x3-jgray-89803.mp3',hairdryer:'freesound_community-sound-of-a-hairdryer-68897.mp3',bottle:'freesound_community-sucking-on-a-popsicle-75782.mp3',washer:'freesound_community-washing-machine-working-22260.mp3',playground:'geralt-the-big-break-at-half-past-nine-220150.mp3',shower:'jadeallencook-running-shower-water-sound-in-bathroom-with-steady-stream-339233 2.mp3',babyLaugh:'jodywhiteley-baby-laugh-giggle-119650.mp3',keys:'kai_audio-keys-jingle-471538.mp3',carDoorClose:'kamranbashirb-car-door-shut-297266.mp3',carRun:'manshaofficial-diesel-car-engine-sound-111994.mp3',pill:'photos-pill-bottle-shake-415796.mp3',carStart:'pwlpl-car-engine-start-sound-effect-521106.mp3',eat:'relaxsoundsde-sound-eating-free-to-use-429258.mp3',schoolBell:'ribhavagrawal-school_bell-loopable-sound-effect-no-copyright-414552.mp3',knock:'scottishperson-sound-effect-door-knock-single-200531.mp3',fry:'shut_up_ghost-frying-food-cooking-kitchen-free-sound-effect-382865.mp3',heart:'soundreality-heart-beat-137135.mp3',door:'soundreality-open-and-closed-door-reverb-206833.mp3',phone:'soundreality-phone-ringtone-sound-294438.mp3',ui:'soundshelfstudio-ui-digital-target-lock-beep-526191.mp3',carStop:'spinopel-turn-off-the-car-engine-345716.mp3',stomach:'superv007-cartoon-stomach-growling-sfx-357010.mp3',microwaveDoor:'tommylynn-microwave-opening-and-closing-369266.mp3',ambulance:'u_xg7ssi08yr-ambulance-siren-363656.mp3',cough:'u_xg7ssi08yr-child-coughs-355471.mp3',vacuum:'u_xg7ssi08yr-vaccuumn-cleaner-362049.mp3',message:'universfield-happy-message-ping-351298.mp3',toilet:'vibehorn-toilet-flush-fx-3-424983.mp3'};
-function o(name,type,x,y,w,h,contents){return{name,type,x,y,w,h,contents:contents||[]}}
-const ROOMS={home:[{id:'living',name:'Living Room',amb:'tv',objects:[o('sofa','seat',8,56,30,20),o('television','active',67,10,25,15),o('toy box','container',62,62,30,18,['rattle','toy','squeaky toy']),o('floor mat','play',28,66,30,18),o('Grandma','person',12,18,28,15)]},{id:'kitchen',name:'Kitchen',objects:[o('fridge','container',5,8,25,22,['bottle','milk','juice','snack','meal ingredients']),o('cupboard','container',36,8,25,22,['plate','bowl','cup','wipes']),o('cooker','active',70,8,24,22),o('microwave','active',8,42,25,17),o('sink','water',38,42,25,18),o('table','surface',66,45,25,18),o('highchair','highchair',70,70,22,16)]},{id:'bathroom',name:'Bathroom',objects:[o('bath','bath',5,8,30,22),o('shower','shower',42,8,26,22),o('sink','water',72,10,22,16),o('toilet','toilet',72,45,22,17),o('toothbrush','carry',5,56,24,14),o('hair brush','carry',34,56,24,14),o('hair dryer','carry',62,72,30,14),o('medicine cupboard','container',35,36,30,16,['medicine','thermometer'])]},{id:'nursery',name:'Nursery',amb:'mobile',objects:[o('cot','sleep',5,10,30,24),o('changing table','change',42,10,32,20),o('nappies','carry',5,48,24,14),o('wipes','carry',32,48,22,14),o('baby cream','carry',58,48,30,14),o('music mobile','active',40,76,30,14),o('rattle','carry',76,76,18,14)]},{id:'bedroom1',name:'Bedroom 1',objects:[o('bed','sleep',5,12,32,22),o('wardrobe','container',55,10,32,20,['clothes','pyjamas','school uniform']),o('school bag','container',10,55,30,15,['paper','pens','books','lunch box']),o('books','carry',48,55,22,15),o('clothes','carry',72,55,22,15)]},{id:'utility',name:'Utility Room',objects:[o('washing machine','active',8,15,34,22),o('laundry basket','carry',55,15,32,18),o('clean clothes basket','carry',40,55,45,18),o('vacuum cleaner','tool',8,58,30,18)]},{id:'garden',name:'Garden',amb:'birds',objects:[o('swing','play',8,15,28,22),o('slide','play',60,14,28,22),o('grass','play',8,70,80,18),o('dog','pet',38,48,25,16),o('cat','pet',65,48,20,15)]},{id:'frontdoor',name:'Front Door',objects:[o('door','travel',35,10,30,20),o('doorbell','sound',70,10,20,14),o('car keys','carry',12,55,25,15),o('car','car',45,55,35,20)]}],shop:[{id:'shop',name:'Supermarket',amb:'supermarket',objects:[o('trolley bay','trolley',5,12,30,18),o('basket','carry',42,12,25,16),o('baby aisle','container',48,42,38,18,['nappies','wipes','baby cream','bottles']),o('food aisle','container',8,50,34,18,['snack','fruit','meal ingredients','drink']),o('checkout','checkout',55,75,30,16),o('exit to car','car',8,78,30,14)]}],park:[{id:'park',name:'Park',amb:'playground',objects:[o('gate','travel',8,10,28,18),o('birds','sound',55,10,28,18),o('swing','play',8,55,28,18),o('slide','play',58,55,28,18),o('dog','pet',37,38,25,16)]}],school:[{id:'school',name:'School',amb:'classroom',objects:[o('teacher','teacher',35,20,30,18),o('school bell','sound',8,20,25,18),o('classroom','schoolPlace',55,58,30,18),o('desk','surface',8,58,26,18)]}],nursery:[{id:'nurseryPlace',name:'Nursery',amb:'mobile',objects:[o('staff member','nurseryStaff',35,20,32,18),o('baby room','schoolPlace',8,55,30,16),o('toys','carry',45,55,25,16),o('cot','sleep',70,55,22,18)]}],doctor:[{id:'doctor',name:'Doctor',objects:[o('doctor','doctor',8,18,30,18),o('receptionist','receptionist',52,18,34,16),o('thermometer','carry',45,48,32,15),o('medicine','carry',8,55,30,15),o('chairs','seat',48,70,30,16)]}],hospital:[{id:'hospital',name:'Hospital',objects:[o('nurse','nurse',8,18,28,18),o('doctor','doctor',42,18,28,18),o('thermometer','carry',45,48,32,15),o('monitor','sound',8,55,30,16),o('bed','sleep',45,70,35,18),o('ambulance bay','sound',62,85,30,12)]}],grandma:[{id:'grandma',name:"Grandma's House",amb:'restaurant',objects:[o('Grandma','person',8,18,30,18),o('sofa','seat',45,18,35,18),o('cups','carry',35,58,22,18),o('biscuits','carry',62,58,24,18)]}]};
-let game=null,place='home',room=0,current=null,container=null,containerCurrent=null,childId=null,convo=null,mode='explore',speechOn=true,soundsOn=true,loops={},lastName='',lastStep=0,tickTimer=null,driveOptions=[],motionReady=false,lastTilt=0;
-function $(id){return document.getElementById(id)}function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}function rand(a){return a[Math.floor(Math.random()*a.length)]}
-function setupAges(){let s=$('adoptAge');[[0,'Newborn'],[7,'7 months'],[12,'1 year'],[24,'2 years'],[36,'3 years'],[60,'5 years'],[84,'7 years'],[120,'10 years'],[156,'13 years'],[204,'17 years']].forEach(p=>{let op=document.createElement('option');op.value=p[0];op.textContent=p[1];s.appendChild(op)})}setupAges();
-function speak(t,c){if(!speechOn)return;try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=c?c.rate:.95;u.pitch=c?c.pitch:1.05;let voices=speechSynthesis.getVoices();if(voices.length)u.voice=voices.find(v=>/samantha|tessa|serena|moira|kate|susan|female/i.test(v.name))||voices[0];speechSynthesis.speak(u)}catch(e){}}
-function audio(n,v=1,loop=false){if(!soundsOn||!S[n])return null;try{let a=new Audio(S[n]);a.volume=v;a.loop=loop;a.play().catch(()=>{});return a}catch(e){return null}}function one(n,v=1,stopAfter=0){let a=audio(n,v,false);if(a&&stopAfter)setTimeout(()=>{try{a.pause();a.currentTime=0}catch(e){}},stopAfter);return a}function startLoop(k,n,v=1){if(loops[k]||!S[n])return;let a=audio(n,v,true);if(a)loops[k]=a}function stopLoop(k){if(!loops[k])return;try{loops[k].pause();loops[k].currentTime=0}catch(e){}delete loops[k]}function stopAll(prefix){Object.keys(loops).filter(k=>!prefix||k.startsWith(prefix)).forEach(stopLoop)}
-function createGame(){game={name:$('familyName').value.trim()||'Care Family',money:150,bills:25,time:'Morning',day:1,weather:'sunny',carrying:null,bag:[],trolley:false,trolleyItems:[],car:{passengers:[],boot:[]},children:[],pets:[],items:{},notices:[],messages:[],pregnancy:false,babysitter:null,people:[{id:'grandma',name:'Grandma',role:'grandma',health:'well',loc:{place:'home',room:'living',x:12,y:18,pos:'visiting'},mood:'kind'}],last:{place:'home',room:0}};mode=$('accessMode').value;let st=$('startType').value;if(st==='baby'||st==='multiple')addChild('Maiva',7);if(st==='child'||st==='multiple')addChild('Mia',84);if(st==='pregnant')game.pregnancy=true;addPet('cat',false);notice('Family created.');startWorld();saveGame(false);showGame()}
-function addChild(name,age){let rm=age<12?'nursery':age<48?'living':'bedroom1';let pos=age<12?'in cot':'floor';game.children.push({id:'c'+Date.now()+Math.random(),name,age,diff:'none',loc:{place:'home',room:rm,x:age<12?18:48,y:age<12?18:60,pos},need:'',ill:'',allergy:rand(['none','none','none','peanut','pollen','dairy']),health:'well',hunger:70,thirst:70,tired:20,hygiene:80,happy:65,pitch:age<36?1.3:age<144?1.1:.9,rate:.9+Math.random()*.12,dressed:false,activity:age<12?'sleeping':'settled',enrolled:false,consequence:0})}
-function addPet(kind='dog',announce=true){if(!game)return;game.pets.push({id:'p'+Date.now()+Math.random(),kind,name:kind==='cat'?'Cat':'Dog',loc:{place:'home',room:kind==='cat'?'living':'garden',x:kind==='cat'?60:38,y:kind==='cat'?55:48,pos:'floor'},need:'',happy:70});if(announce){notice('Adopted a '+kind+'.');openFamily()}}
-function saveGame(a=true){if(!game)return;game.last={place,room};localStorage.setItem('familyCareV8',JSON.stringify({game,mode,speechOn,soundsOn}));if(a)notice('Saved.')}function loadGame(){let raw=localStorage.getItem('familyCareV8');if(!raw){alert('No saved game yet.');return}let d=JSON.parse(raw);game=d.game;mode=d.mode||'explore';speechOn=d.speechOn??true;soundsOn=d.soundsOn??true;place=game.last?.place||'home';room=game.last?.room||0;ensure();startWorld();showGame()}function ensure(){game.children=game.children||[];game.pets=game.pets||[];game.items=game.items||{};game.notices=game.notices||[];game.messages=game.messages||[];game.bag=game.bag||[];game.trolleyItems=game.trolleyItems||[];game.people=game.people||[];game.car=game.car||{passengers:[],boot:[]};}function resetGame(){localStorage.removeItem('familyCareV8');location.reload()}function startWorld(){if(tickTimer)clearInterval(tickTimer);tickTimer=setInterval(tick,15000)}
-function curRoom(){return ROOMS[place][room]}function key(){return place+'::'+curRoom().id}function showGame(){show('game');render();speak(curRoom().name);updateSoundscape()}
-function render(){let r=curRoom();$('roomTitle').textContent=r.name;$('status').textContent='Day '+game.day+', '+game.time+'. Weather: '+game.weather+'. Money: '+game.money+' coins. Carrying: '+(game.carrying?game.carrying.label:'nothing')+'. '+(game.trolley?'Pushing trolley. ':'');$('carryCard').innerHTML=game.carrying?'<strong>Carrying:</strong> '+game.carrying.label+'<br>Find a child, pet, container, or safe place, then choose Use Carried Item / Place.':'<strong>Carrying:</strong> nothing';let w=$('world');w.innerHTML='';targets().forEach(t=>{let d=document.createElement('div');d.className='obj '+(t.kind==='child'?'childObj':t.kind==='pet'?'petObj':t.kind==='person'?'personObj':'');d.id='obj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=t.name;w.appendChild(d)});setFocus(null)}
-function targets(){let r=curRoom();let arr=r.objects.map((x,i)=>({...x,kind:'object',id:'o'+i}));let dropped=(game.items[key()]||[]).map((it,i)=>({name:it.label,type:'dropped',x:it.x,y:it.y,w:22,h:13,kind:'dropped',id:'d'+i,idx:i}));let kids=game.children.filter(c=>c.loc.place===place&&c.loc.room===curRoom().id).map(c=>({name:c.name,type:'child',x:c.loc.x,y:c.loc.y,w:24,h:15,kind:'child',id:c.id,child:c.id}));let pets=game.pets.filter(p=>p.loc.place===place&&p.loc.room===curRoom().id).map(p=>({name:p.name,type:'pet',x:p.loc.x,y:p.loc.y,w:23,h:14,kind:'pet',id:p.id,pet:p.id}));let people=game.people.filter(p=>p.loc.place===place&&p.loc.room===curRoom().id).map(p=>({name:p.name,type:p.role,x:p.loc.x,y:p.loc.y,w:24,h:15,kind:'person',id:p.id,person:p.id}));return arr.concat(dropped,kids,pets,people)}
-function setFocus(t){current=t;document.querySelectorAll('.obj').forEach(e=>e.classList.remove('target'));if(t){let el=$('obj_'+t.id);if(el)el.classList.add('target');$('focus').innerHTML='<strong>Touching:</strong> '+t.name+'<br><strong>Action:</strong> '+hint(t)}else $('focus').innerHTML='<strong>Touching:</strong> nothing'}function hint(t){if(t.kind==='child')return game.carrying?'use carried item on child':'pick up or talk';if(t.kind==='person')return 'talk, phone, or babysit';if(t.kind==='pet')return 'pet or care';if(t.type==='container')return 'open and explore inside';if(t.type==='trolley')return 'push trolley, not carry it';if(t.type==='carry'||t.type==='tool')return 'pick up';if(['bath','shower','sleep','highchair','seat','surface','change'].includes(t.type))return game.carrying?'place or use item here':'use place';if(t.type==='active')return 'start or stop';if(t.type==='car')return 'car and passengers';if(t.type==='checkout')return 'pay for trolley items';if(['teacher','doctor','nurse','nurseryStaff','receptionist'].includes(t.type))return 'talk';return 'interact'}
-function objectAt(x,y,area='world'){let r=$(area).getBoundingClientRect();let px=(x-r.left)/r.width*100,py=(y-r.top)/r.height*100;let list=area==='world'?targets():containerTargets();return list.find(t=>px>=t.x&&px<=t.x+t.w&&py>=t.y&&py<=t.y+t.h)}function handleTouch(touch){let now=Date.now();if(now-lastStep>360){lastStep=now;if(game.trolley&&place==='shop')one('trolley',.55,700);else one('footsteps',.65,450)}let t=objectAt(touch.clientX,touch.clientY);if(t){setFocus(t);if(t.name!==lastName){lastName=t.name;speak(t.name);if(t.type==='sound')playObjectSound(t.name)}}}
-$('world').addEventListener('touchstart',e=>handleTouch(e.changedTouches[0]),{passive:true});$('world').addEventListener('touchmove',e=>handleTouch(e.changedTouches[0]),{passive:true});$('world').addEventListener('touchend',()=>{lastName=''}, {passive:true});
-function interact(){if(!current){notice('Nothing selected.');return}let t=current;if(t.kind==='child'){interactChild(child(t.child));return}if(t.kind==='person'){startConversation(t.name,t.type);return}if(t.kind==='pet'){interactPet(pet(t.pet));return}if(t.kind==='dropped'){let a=game.items[key()]||[],it=a.splice(t.idx,1)[0];if(it){game.carrying=it;one('beep');notice('Picked up '+it.label)}game.items[key()]=a;render();return}if(t.type==='container'){openContainer(t);return}if(t.type==='trolley'){game.trolley=true;one('trolley',.55,800);notice('You start pushing the trolley.');render();return}if(t.type==='carry'||t.type==='tool'){pickUp(t);return}if(t.type==='checkout'){checkout();return}if(['teacher','doctor','nurse','nurseryStaff','receptionist'].includes(t.type)){startConversation(t.name,t.type);return}if(t.type==='car'){prepareCar();return}if(t.type==='travel'){show('travel');one('door');return}if(t.type==='active'||['bath','shower','water','toilet'].includes(t.type)){useFixed(t);return}if(t.type==='sound'){playObjectSound(t.name);return}if(game.carrying&&['sleep','highchair','seat','surface','change','bath','play'].includes(t.type)){useOrPlace();return}notice('You use '+t.name+'.')}
-function useFixed(t){let n=t.name;if(n==='television'){toggleLoop('room_tv','tv',.45);notice('Television toggled.');return}if(n==='music mobile'){toggleLoop('mobile','mobile',.6);notice('Music mobile toggled.');return}if(t.type==='shower'||n==='shower'){toggleLoop('use_shower','shower',.85);notice('Shower toggled.');return}if(t.type==='bath'||n==='bath'){one('bath');notice('Bath is filling.');return}if(n==='cooker'){startTimed('cooker','fry',9000,'Cooking finished.');return}if(n==='microwave'){one('microwaveDoor');startTimed('microwave','microwave',6500,'Microwave finished.');return}if(n==='washing machine'){startTimed('washer','washer',18000,'Washing machine finished.');return}if(n==='sink'){one('splash');notice('Water runs.');return}if(n==='toilet'){one('toilet');notice('The toilet flushes.');return}if(n==='doorbell'){one('message');notice('The doorbell rings.');return}}
-function pickUp(t){let type=t.name;if(type==='vacuum cleaner')type='vacuum';if(type==='hair brush')type='hairbrush';if(type==='hair dryer')type='hairdryer';if(t.type==='trolley'){notice('Trolleys are pushed, not carried.');return}game.carrying={type,label:t.name};one(pickSound(t.name));notice('Picked up '+t.name+'.');if(type==='vacuum')startLoop('use_vacuum','vacuum',.8);render()}function pickSound(n){if(n.includes('rattle'))return'rattle';if(n.includes('hair brush'))return'hairbrush';if(n.includes('hair dryer'))return'hairdryer';if(n.includes('toothbrush'))return'toothbrush';if(n.includes('clothes')||n.includes('basket'))return'clothes';if(n.includes('keys'))return'keys';return'beep'}
-function openContainer(t){container=t;if(t.name==='fridge')one('fridgeOpen');else if(t.name==='cupboard')one('cupboard');else one(t.name==='school bag'?'clothes':'paper');containerCurrent=null;$('containerTitle').textContent=t.name;$('containerInfo').textContent='Explore inside '+t.name+'. Select the item you want.';show('containerScreen');renderContainer();speak('Inside '+t.name)}function containerTargets(){if(!container)return[];return container.contents.map((name,i)=>({name,type:'containerItem',x:10+(i%3)*30,y:15+Math.floor(i/3)*22,w:25,h:15,id:'ci'+i,idx:i}))}function renderContainer(){let w=$('containerWorld');w.innerHTML='';containerTargets().forEach(t=>{let d=document.createElement('div');d.className='obj';d.id='cobj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=t.name;w.appendChild(d)});$('containerFocus').innerHTML='<strong>Touching:</strong> nothing'}
-$('containerWorld').addEventListener('touchstart',e=>handleContainer(e.changedTouches[0]),{passive:true});$('containerWorld').addEventListener('touchmove',e=>handleContainer(e.changedTouches[0]),{passive:true});function handleContainer(touch){let t=objectAt(touch.clientX,touch.clientY,'containerWorld');if(t){containerCurrent=t;document.querySelectorAll('#containerWorld .obj').forEach(e=>e.classList.remove('target'));let el=$('cobj_'+t.id);if(el)el.classList.add('target');$('containerFocus').innerHTML='<strong>Touching:</strong> '+t.name;speak(t.name)}}function takeContainerItem(){if(!containerCurrent){notice('No item selected.');return}let it=item(containerCurrent.name);if(place==='shop'&&game.trolley){game.trolleyItems.push(it.label);one('beep');notice(it.label+' added to trolley.')}else{game.carrying=it;notice('Picked up '+it.label+'.')}showGame()}function closeContainer(){if(container&&container.name==='fridge')one('fridgeClose');container=null;containerCurrent=null;showGame()}function item(label){let type=label;if(label==='bottles')type='bottle';if(label==='meal ingredients')type='ingredients';if(label==='school uniform'||label==='pyjamas')type='clothes';if(label==='lunch box')type='meal';return{type,label}}
-function useOrPlace(){if(!game.carrying){notice('You are not carrying anything.');return}if(!current){notice('Find a person, pet, or place first.');return}if(current.kind==='child'){useOnChild(game.carrying,child(current.child));return}if(current.kind==='pet'){useOnPet(game.carrying,pet(current.pet));return}if(game.carrying.type==='child'){placeChild(game.carrying,current);return}if(game.carrying.type==='vacuum')stopLoop('use_vacuum');let pos={x:current.x,y:Math.min(86,current.y+12)};(game.items[key()] ||= []).push({...game.carrying,...pos});notice('Put down '+game.carrying.label+'.');game.carrying=null;render()}function placeChild(it,target){let c=child(it.id);if(!c)return;if(!target){notice('Choose a safe place first.');return}let p=target.type,n=target.name;if(!['sleep','highchair','seat','surface','change','bath','play'].includes(p)){notice(c.name+' cannot be placed there safely.');return}if(p==='bath'){c.loc={place,room:curRoom().id,x:target.x,y:target.y,pos:'in the bath'};c.need=c.need==='dirty'?'':c.need;one('bath');notice('You place '+c.name+' in the bath. Stay with them while bathing.')}else if(p==='sleep'){c.loc={place,room:curRoom().id,x:target.x,y:target.y,pos:'in '+n};c.need=c.need==='tired'?'':c.need;c.tired=0;c.activity='sleeping';one('blanket');notice('You settle '+c.name+' in '+n+'.')}else if(p==='highchair'){c.loc={place,room:curRoom().id,x:target.x,y:target.y,pos:'in the highchair'};notice('You place '+c.name+' in the highchair.')}else if(p==='change'){c.loc={place,room:curRoom().id,x:target.x,y:target.y,pos:'on the changing table'};notice('You place '+c.name+' on the changing table.')}else{c.loc={place,room:curRoom().id,x:target.x,y:target.y,pos:'on '+n};notice('You place '+c.name+' on '+n+'.')}game.carrying=null;render();updateSoundscape()}
-function interactChild(c){if(!c)return;if(game.carrying){useOnChild(game.carrying,c);return}if(c.age<60){game.carrying={type:'child',id:c.id,label:c.name};c.loc={place:'carried',room:'carried',x:0,y:0,pos:'carried'};one(c.age<18?'baby':'childLaugh');notice('Picked up '+c.name+'.');render();updateSoundscape();return}childId=c.id;talkToChild()}
-function useOnChild(it,c){if(!c)return;if(it.type==='bottle'){if(c.age>=48){childSay(c,"I don't need a bottle.");return}if(c.need==='hungry'||c.hunger<45){one('bottle');c.hunger=100;c.need='';c.activity='settled';game.carrying=null;notice(c.name+' drinks.')}else{one('cry');notice(c.name+' refuses the bottle.')}updateSoundscape();return}if(['meal','snack','fruit','biscuits','ingredients'].includes(it.type)){if(c.allergy==='peanut'&&it.label.includes('biscuit')){allergyReaction(c,'peanut');game.carrying=null;return}if(c.need==='hungry'||c.hunger<55){one('eat');one('crockery');c.hunger=100;c.need='';game.carrying=null;notice(c.name+' eats.')}else childSay(c,"I'm not hungry.");updateSoundscape();return}if(['drink','juice','milk','cup'].includes(it.type)){if(c.allergy==='dairy'&&it.label==='milk'){allergyReaction(c,'dairy');game.carrying=null;return}if(c.need==='thirsty'||c.thirst<50){one('drink');c.thirst=100;c.need='';game.carrying=null;notice(c.name+' drinks.')}else childSay(c,"I don't want a drink.");updateSoundscape();return}if(it.type==='medicine'){if(c.need==='ill'||c.ill){one('pill');c.health='recovering';c.need='';c.ill='';game.carrying=null;notice('Medicine given to '+c.name+'.')}else notice(c.name+' does not need medicine.');updateSoundscape();return}if(it.type==='thermometer'){one('beep');notice(c.need==='ill'?c.name+' seems poorly.':c.name+' seems okay.');return}if(it.type==='toothbrush'){one('toothbrush');c.hygiene+=15;notice(c.name+' brushes teeth.');return}if(it.type==='hairbrush'){one('hairbrush');c.hygiene+=8;notice(c.name+' has hair brushed.');return}if(it.type==='hairdryer'){startTimed('hairdryer','hairdryer',5000,c.name+' hair dried.');return}if(['nappies','nappy','wipes','baby cream'].includes(it.type)){one('wipes');c.hygiene=100;c.need=c.need==='dirty'?'':c.need;notice(c.name+' is changed.');updateSoundscape();return}if(['clothes','pyjamas','school uniform'].includes(it.type)){one('clothes');c.dressed=true;notice(c.name+' gets dressed.');return}if(['rattle','toy','squeaky toy'].includes(it.type)){one(it.type==='rattle'?'rattle':'squeak');c.happy+=10;c.need=c.need==='attention'?'':c.need;c.activity='playing';notice(c.name+' plays.');updateSoundscape();return}childSay(c,"I don't need that.")}
-function allergyReaction(c,type){c.need='ill';c.ill='allergy';c.health='allergic reaction';one('cough');setTimeout(()=>one('heart'),1400);notice(c.name+' is having an allergic reaction to '+type+'. Call the doctor or hospital.');addMessage('Emergency','Possible allergic reaction for '+c.name+'. Get medical help.');updateSoundscape()}function checkout(){if(!game.trolleyItems.length){notice('Your trolley is empty.');return}let cost=game.trolleyItems.length*5;if(game.money<cost){notice('Not enough money.');return}game.money-=cost;game.car.boot=game.car.boot.concat(game.trolleyItems);one('cash');notice('Paid '+cost+' coins. Shopping bags are now in the car boot.');game.trolleyItems=[];game.trolley=false;render()}
-function prepareCar(){place='home';room=7;renderCar();show('carScreen')}function renderCar(){let names=game.car.passengers.map(id=>child(id)?.name).filter(Boolean);$('carInfo').innerHTML='Passengers: '+(names.length?names.join(', '):'none')+'<br>Boot: '+(game.car.boot.length?game.car.boot.join(', '):'empty')+'<br>Selected child: '+(childId?child(childId)?.name:'none')}function putCurrentChildInCar(){let c=child(childId);if(!c){notice('Select a child from Family first.');return}if(c.age<60&&c.loc.place!=='carried'){notice('Pick '+c.name+' up first.');return}if(!game.car.passengers.includes(c.id))game.car.passengers.push(c.id);c.loc={place:'car',room:'car',x:0,y:0,pos:c.age<48?'in car seat':'in car'};game.carrying=null;one('carDoorOpen');setTimeout(()=>one('carDoorClose'),900);notice(c.name+' is in the car.');renderCar()}function takeChildOutOfCar(){let c=child(childId)||child(game.car.passengers[0]);if(!c){notice('No selected child in car.');return}game.car.passengers=game.car.passengers.filter(id=>id!==c.id);c.loc={place,room:curRoom().id,x:45,y:55,pos:'floor'};one('carDoorOpen');notice(c.name+' gets out of the car.');render();renderCar()}function takeShoppingFromBoot(){if(!game.car.boot.length){notice('Boot is empty.');return}game.bag=game.bag.concat(game.car.boot);notice('You take shopping bags from the boot.');game.car.boot=[];renderCar()}
-function startDriving(){if(game.children.some(c=>c.age<48&&c.loc.place==='home'&&!game.babysitter&&!game.car.passengers.includes(c.id))){notice('A young child is still at home. Put them in the car or arrange babysitting.');speak('A young child is still at home.');return}stopAll();one('carDoorClose');setTimeout(()=>one('carStart'),900);setTimeout(()=>startLoop('car','carRun',.65),1900);driveOptions=['home','school','shop','park','nursery','doctor','hospital','grandma'];newDrivePrompt();show('drive')}function newDrivePrompt(){let loc=rand(driveOptions),side=rand(['left','right','ahead']);$('drivePrompt').textContent=title(loc)+' '+(side==='ahead'?'ahead':'on the '+side)+'.';$('driveStatus').textContent='Tilt '+side+' or use the buttons.';$('drive').dataset.loc=loc;$('drive').dataset.side=side;speak($('drivePrompt').textContent)}function driveLeft(){driveChoice('left')}function driveRight(){driveChoice('right')}function driveStraight(){driveChoice('ahead')}function driveChoice(c){let loc=$('drive').dataset.loc,side=$('drive').dataset.side;if(c===side){stopDriving(false);goPlace(loc)}else{one('carRun',.5);newDrivePrompt()}}function stopDriving(back=true){stopLoop('car');one('carStop');one('carDoorOpen');if(back)showGame()}function goPlace(p){place=p;room=0;stopAll();if(p==='home'){place='home';room=7;one('door')}if(p==='shop')startLoop('amb_shop','supermarket',.45);if(p==='park')startLoop('amb_park','playground',.45);if(p==='school')one('schoolBell');if(p==='hospital')one('ambulance');game.car.passengers.forEach(id=>{let c=child(id);if(c)c.loc={place:'car',room:'car',x:0,y:0,pos:c.age<48?'in car seat':'in car'}});showGame()}
-function requestMotion(){if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted'){motionReady=true;speak('Tilt driving enabled.')}}).catch(()=>alert('Motion permission was not granted.'))}else{motionReady=true;speak('Tilt driving enabled if this browser supports it.')}}window.addEventListener('deviceorientation',e=>{if(!$('drive').classList.contains('active')||!motionReady)return;let g=e.gamma||0,now=Date.now();if(now-lastTilt<2200)return;if(g<-18){lastTilt=now;driveLeft()}else if(g>18){lastTilt=now;driveRight()}});
-function startTimed(k,s,ms,msg){startLoop(k,s,.75);notice(msg.replace('finished','started'));setTimeout(()=>{stopLoop(k);one('beep');notice(msg)},ms)}function toggleLoop(k,s,v){loops[k]?stopLoop(k):startLoop(k,s,v)}function tick(){if(!game)return;advanceTime();moveChildren();makeNeeds();livingPeople();babysitterEvents();schoolEvents();weatherTick();consequenceTick();updateSoundscape();saveGame(false)}function advanceTime(){if(Math.random()>.28)return;let a=['Morning','Afternoon','Evening','Night'];let i=a.indexOf(game.time)+1;if(i>=a.length){i=0;game.day++;if(game.day%5===0){game.money-=game.bills;notice('Bills paid.')}}game.time=a[i]}function moveChildren(){game.children.forEach(c=>{if(['carried','car'].includes(c.loc.place)||c.age<12)return;if(c.age<48&&c.loc.place==='home'&&Math.random()<.12){c.loc={place:'home',room:rand(['living','nursery']),x:45,y:60,pos:'floor'}}else if(c.age<144&&c.loc.place==='home'&&Math.random()<.1){c.loc={place:'home',room:rand(['living','kitchen','bedroom1','garden']),x:45,y:60,pos:'floor'}}else if(c.loc.place==='home'&&Math.random()<.08){c.loc={place:'home',room:rand(['living','kitchen','bedroom1','frontdoor']),x:45,y:60,pos:'floor'}}})}
-function livingPeople(){let g=game.people.find(p=>p.id==='grandma');if(g&&g.loc.place==='home'&&Math.random()<.12){g.loc.room=rand(['living','kitchen','nursery','garden']);g.loc.x=20+Math.floor(Math.random()*50);g.loc.y=20+Math.floor(Math.random()*45);if(Math.random()<.05){g.health='unwell';addMessage('Grandma','I am feeling a bit poorly today.')}}}function makeNeeds(){game.children.forEach(c=>{if(c.need)return;c.hunger-=Math.floor(Math.random()*8);c.thirst-=Math.floor(Math.random()*7);c.tired+=Math.floor(Math.random()*8);c.hygiene-=Math.floor(Math.random()*5);if(c.hunger<35)c.need='hungry';else if(c.thirst<30)c.need='thirsty';else if(c.tired>82)c.need='tired';else if(c.hygiene<30&&c.age<48)c.need='dirty';else if(Math.random()<.04){c.need='ill';c.ill=rand(['cold','stomach','sneeze','ear','chest']);c.health='poorly'}else if(Math.random()<.05)c.need='attention';if(!c.need&&c.age<18)c.activity=rand(['sleeping','babbling','playing','settled'])})}function babysitterEvents(){if(!game.babysitter)return;let issue=game.children.find(c=>c.loc.place==='home'&&c.need&&Math.random()<.25);if(issue){one('phone');addMessage(game.babysitter,issue.name+' needs help with '+issue.need+'.');notice(game.babysitter+' calls about '+issue.name+'.')}}function schoolEvents(){let issue=game.children.find(c=>c.loc.place==='school'&&c.need==='ill'&&Math.random()<.25);if(issue){one('phone');addMessage('School',issue.name+' is unwell and needs collecting.');notice('School calls: '+issue.name+' is unwell and needs collecting.')}}function weatherTick(){if(Math.random()<.08){game.weather=rand(['sunny','cloudy','rain','storm','snow']);if(game.weather==='rain'||game.weather==='storm')one('rain',.7)}}function consequenceTick(){game.children.forEach(c=>{if(c.need){c.consequence=(c.consequence||0)+1;if(c.consequence===4){addMessage('Concern','You have ignored '+c.name+"'s "+c.need+' for a while.');notice(c.name+' is getting more distressed.')}if(c.consequence>=7&&c.need==='ill'){c.health='worse';addMessage('Health warning',c.name+' needs medical help soon.')}}else c.consequence=0})}
-function updateSoundscape(){stopAll('child_');stopAll('amb_');let amb=curRoom().amb;if(amb)startLoop('amb_'+place+'_'+room,amb,.25);if(game.weather==='rain'&&['garden','park'].includes(place))startLoop('amb_rain','rain',.45);else stopLoop('amb_rain');game.children.forEach(c=>{if(c.loc.place==='carried'||c.loc.place==='car')return;if(c.loc.place!==place||c.loc.room!==curRoom().id)return;let v=.82;if(c.need==='ill'){let s=c.ill==='cold'||c.ill==='chest'?'cough':c.ill==='sneeze'?'sneeze':c.ill==='stomach'?'stomach':'cry';startLoop('child_'+c.id,s,v)}else if(c.age<36&&['hungry','thirsty','attention'].includes(c.need))startLoop('child_'+c.id,'cry',v);else if(c.need==='tired'||c.activity==='sleeping')startLoop('child_'+c.id,'snore',.45);else if(c.activity==='playing')startLoop('child_'+c.id,'rattle',.45);else if(c.age<18&&(c.activity==='babbling'||c.activity==='settled'))startLoop('child_'+c.id,'baby',.35)})}
-function playObjectSound(n){if(n==='birds')one('birds');if(n==='school bell')one('schoolBell');if(n==='monitor')one('heart');if(n==='ambulance bay')one('ambulance');if(n==='doorbell')one('message')}function nextRoom(){room=(room+1)%ROOMS[place].length;one('door');showGame()}function prevRoom(){room=(room-1+ROOMS[place].length)%ROOMS[place].length;one('door');showGame()}function whereAmI(){speak(curRoom().name+(current?'. Touching '+current.name:''))}function callChild(){if(!game.children.length){notice('No children yet.');return}let c=childId?child(childId):game.children[0];if(c.loc.place!==place){childSay(c,'I am at '+locText(c)+'.');return}if(c.age<18){one(c.activity==='sleeping'?'snore':'baby');notice(c.name+' makes a baby sound.')}else childSay(c,'I am here.')}function findFamily(){let lines=game.children.map(c=>c.name+' is at '+locText(c)+', '+c.loc.pos+'.');notice(lines.join(' '));speak(lines.join(' '))}
-function openBag(){$('bagInfo').innerHTML='Money: '+game.money+' coins<br>Bag: '+(game.bag.length?game.bag.join(', '):'empty')+'<br>Trolley: '+(game.trolleyItems.length?game.trolleyItems.join(', '):'empty')+'<br>Car boot: '+(game.car.boot.length?game.car.boot.join(', '):'empty')+'<br>Carrying: '+(game.carrying?game.carrying.label:'nothing');show('bag')}function openFamily(){let html=game.children.map(c=>'<div class="card"><strong>'+c.name+'</strong><br>Age: '+ageText(c.age)+'<br>Location: '+locText(c)+'<br>Position: '+c.loc.pos+'<br>Observation: '+observe(c)+'<br>Health: '+c.health+'<br>Allergy: '+c.allergy+'<br>Enrolled: '+(c.enrolled?'yes':'no')+'<br><button onclick="openChild(\''+c.id+'\')">Open '+c.name+'</button></div>').join('')||'<p>No children yet.</p>';html+=game.people.map(p=>'<div class="card"><strong>'+p.name+'</strong><br>Role: '+p.role+'<br>Health: '+p.health+'<br>Location: '+title(p.loc.place)+' - '+p.loc.room+'</div>').join('');html+=game.pets.map(p=>'<div class="card"><strong>'+p.name+'</strong><br>Pet: '+p.kind+'<br>Location: '+p.loc.place+' - '+p.loc.room+'</div>').join('');$('familyList').innerHTML=html;show('family')}function observe(c){if(c.need==='hungry')return c.age<36?'crying':'seems hungry';if(c.need==='thirsty')return 'needs a drink';if(c.need==='tired')return 'looks tired';if(c.need==='ill')return illnessText(c);if(c.need==='dirty')return 'needs changing';if(c.activity==='sleeping')return 'asleep';if(c.activity==='playing')return 'playing';if(c.activity==='babbling')return 'babbling happily';return 'settled'}function illnessText(c){return {cold:'coughing and sniffly',stomach:'tummy seems upset',sneeze:'sneezing',ear:'upset and touching ear',chest:'coughing badly',allergy:'allergic reaction'}[c.ill]||'seems poorly'}function openChild(id){childId=id;let c=child(id);$('childTitle').textContent=c.name;$('childInfo').innerHTML='Age: '+ageText(c.age)+'<br>Location: '+locText(c)+'<br>Position: '+c.loc.pos+'<br>Observation: '+observe(c)+'<br>Health: '+c.health+'<br>Allergy: '+c.allergy+'<br>Enrolled: '+(c.enrolled?'yes':'no');show('childScreen')}function adoptChild(){let n=$('adoptName').value.trim();if(!n){alert('Enter a name.');return}addChild(n,Number($('adoptAge').value));let c=game.children[game.children.length-1];c.diff=$('adoptDifference').value;notice(n+' joins the family.');openFamily();updateSoundscape()}function carrySelected(){let c=child(childId);if(!c)return;if(c.age>=60){childSay(c,'I can walk.');return}game.carrying={type:'child',id:c.id,label:c.name};c.loc={place:'carried',room:'carried',x:0,y:0,pos:'carried'};showGame()}function enrollSelected(){let c=child(childId);if(!c)return;if(c.age<24){notice(c.name+' is too young for nursery.');return}c.enrolled=true;notice(c.name+' is enrolled. Visit school or nursery for details.')}function checkChild(){let c=child(childId);if(!c)return;if(c.need==='ill'){if(c.ill==='stomach'){one('stomach');setTimeout(()=>one('vomit'),1800)}else if(c.ill==='sneeze')one('sneeze');else if(c.ill==='allergy'){one('cough');setTimeout(()=>one('heart'),1000)}else one('cough')}else if(c.need==='hungry')one(c.age<36?'cry':'stomach');else if(c.need==='tired')one('snore');else if(c.age<18)one(c.activity==='sleeping'?'snore':'baby');else childSay(c,'I am okay.')}
-function talkToChild(){let c=child(childId);convo={type:'child',id:c.id,name:c.name,role:'child',log:[c.name+': '+line(c)]};renderConvo()}function line(c){if(c.age<18)return 'Babble!';if(c.need==='hungry')return 'Can I have food?';if(c.need==='thirsty')return 'Can I have a drink?';if(c.need==='ill')return "I don't feel good.";if(c.need==='tired')return "I'm tired.";return rand(['Hi.','Can we do something?','I was playing.'])}function startConversation(name,role='adult'){convo={type:'adult',name,role,log:[name+': '+npcGreeting(role,name)]};renderConvo()}function npcGreeting(role,name){if(role==='teacher')return 'Hello. Are you here about enrollment, attendance, or your child?';if(role==='doctor')return 'Hello. Tell me what symptoms you have noticed.';if(role==='nurse')return 'Hello. I can help with triage and observations.';if(role==='nurseryStaff')return 'Hello. Are you asking about meals, naps, play, or enrollment?';if(role==='receptionist')return 'Hello. Do you need an appointment?';if(name==='Grandma'||role==='grandma')return 'Hello dear. Do you need me to help with the children?';return 'Hello.'}function renderConvo(){$('conversationTitle').textContent=convo.name||'Conversation';$('conversationLog').innerHTML=convo.log.join('<br>');$('replyBox').value='';show('conversation')}function sendReply(){let txt=$('replyBox').value.trim();if(!txt)return;convo.log.push('You: '+txt);speak(txt);let rep=replyFor(convo,txt.toLowerCase());convo.log.push((convo.name||'Person')+': '+rep);speak(rep);renderConvo()}function replyFor(c,l){if(c.name==='Grandma'||c.role==='grandma'){if(l.includes('babysit')||l.includes('watch')){game.babysitter='Grandma';return 'Of course dear. I will watch them and phone if I am worried.'}if(l.includes('ill')||l.includes('sick'))return 'Tell me what is happening and I will help you decide what to do.';return 'I am here for you.'}if(c.role==='teacher'){if(l.includes('enroll')){let kid=child(childId)||game.children[0];if(kid){kid.enrolled=true;return kid.name+' is now enrolled. We will contact you if there are any concerns.'}return 'Bring your child details and I will enroll them.'}if(l.includes('ill')||l.includes('sick'))return 'If your child becomes unwell at school, we will phone you immediately.';if(l.includes('homework'))return 'Homework is kept in the school bag.';return 'Let me check the school record and help you with that.'}if(c.role==='nurseryStaff'){if(l.includes('enroll'))return 'We can enroll toddlers and young children. I will need their details and routine.';if(l.includes('nap'))return 'We will record naps and let you know how they slept.';if(l.includes('food')||l.includes('eat'))return 'We keep a note of meals and drinks.';return 'I can talk about play, meals, naps, or any worries.'}if(c.role==='doctor'||c.role==='nurse'||c.role==='receptionist'){if(l.includes('appointment'))return 'I can book an appointment. If breathing or allergies are severe, go to hospital.';if(l.includes('cough'))return 'How long has the cough been happening, and are they drinking?';if(l.includes('vomit')||l.includes('sick'))return 'Watch fluids closely. If they cannot keep drinks down, they may need urgent care.';if(l.includes('allerg'))return 'For breathing difficulty or swelling, use emergency help immediately.';return 'Tell me about temperature, eating, drinking, sleep, and symptoms.'}if(c.type==='child')return 'Okay.';return 'I understand.'}function closeConversation(){convo=null;if(childId)openChild(childId);else showGame()}
-function openPhone(){$('phoneInfo').innerHTML='Messages:<br>'+(game.messages.slice(0,8).map(m=>'<div class="notice"><strong>'+m.from+':</strong> '+m.text+'</div>').join('')||'No messages.');show('phone')}function phoneContact(name){let role=name==='School'?'teacher':name==='Nursery'?'nurseryStaff':name==='Doctor'?'doctor':name==='Hospital'?'nurse':name==='Grandma'?'grandma':'adult';convo={type:'phone',name,role,log:[name+': '+npcGreeting(role,name)]};one('phone');renderConvo()}function addMessage(from,text){game.messages.unshift({from,text,day:game.day,time:game.time});game.messages=game.messages.slice(0,50)}function interactPet(p){if(!p)return;if(game.carrying){useOnPet(game.carrying,p);return}one(p.kind==='cat'?'cat':'dog');notice(p.name+' is here.')}function useOnPet(it,p){if(['snack','meal','drink'].includes(it.type)){one(p.kind==='cat'?'purr':'dog');p.happy=100;game.carrying=null;notice(p.name+' is happy.')}else notice(p.name+' ignores '+it.label+'.')}function togglePregnancy(){game.pregnancy=!game.pregnancy;notice(game.pregnancy?'Pregnancy started. Appointments and symptoms matter now.':'Pregnancy ended.')}function toggleSpeech(){speechOn=!speechOn;alert('Voice '+(speechOn?'on':'off'))}function toggleSounds(){soundsOn=!soundsOn;if(!soundsOn)stopAll();alert('Sounds '+(soundsOn?'on':'off'))}function toggleMode(){mode=mode==='explore'?'buttons':'explore';alert('Mode: '+mode);saveGame(false);if(game)showGame()}function title(p){return {home:'Home',shop:'Shop',park:'Park',school:'School',nursery:'Nursery',doctor:'Doctor',hospital:'Hospital',grandma:"Grandma's house",car:'Car'}[p]||p}function notice(t){if(!game)return;game.notices.unshift(t);game.notices=game.notices.slice(0,60);if($('game').classList.contains('active')){$('status').textContent='Day '+game.day+', '+game.time+'. Weather: '+game.weather+'. Money: '+game.money+' coins. Carrying: '+(game.carrying?game.carrying.label:'nothing')+'. '+(game.trolley?'Pushing trolley. ':'')}}function child(id){return game.children.find(c=>c.id===id)}function pet(id){return game.pets.find(p=>p.id===id)}function childSay(c,t){notice(c.name+': '+t);speak(t,c)}function locText(c){return c.loc.place==='carried'?'carried':c.loc.place==='car'?'car':title(c.loc.place)+' - '+c.loc.room}function ageText(m){if(m<12)return m+' months';let y=Math.floor(m/12),mo=m%12;return y+' year'+(y===1?'':'s')+(mo?', '+mo+' months':'')}
-window.addEventListener('load',()=>{$('jsStatus').textContent='JavaScript loaded.'});window.onerror=(m,s,l)=>alert('Game error: '+m+' line '+l);window.addEventListener('beforeunload',()=>saveGame(false));
-</script></body></html>
+const S={
+footsteps:'dragon-studio-footsteps-on-wood-397989.mp3',door:'soundreality-open-and-closed-door-reverb-206833.mp3',
+tv:'arunangshubanerjee-tv-playing-in-the-next-room-distant-and-indistinct-television-sound-360697.mp3',
+baby:'freesound_community-baby-noises-60911.mp3',cry:'bahyudinnor-heartbreaking-baby-crying-sound-effect-realistic-amp-high-quality-311648.mp3',
+snore:'freesound_community-baby-snoring-snore-sleeping-breathing-79536.mp3',rattle:'freesound_community-rattle-46377.mp3',
+cough:'u_xg7ssi08yr-child-coughs-355471.mp3',sneeze:'freesound_community-sneeze-female-x3-jgray-89803.mp3',
+stomach:'superv007-cartoon-stomach-growling-sfx-357010.mp3',vomit:'dragon-studio-vomiting-sound-effect-382720.mp3',burp:'freesound_community-burp-104984.mp3',
+fridgeOpen:'freesound_community-fridge-open-80053.mp3',fridgeClose:'freesound_community-fridge-close-80052.mp3',cupboard:'freesound_community-opening-cupboard-37521.mp3',
+paper:'freesound_community-paper-sound-39259.mp3',beep:'cartoon-music-game-sfx-cash-register-scanner-single-beep-494483.mp3',
+trolley:'freesound_community-pushing-grocery-cart-63821.mp3',supermarket:'alex_jauk-supermarket-ambience-sounds-518582.mp3',
+classroom:'freesound_community-classroom-32941.mp3',playground:'geralt-the-big-break-at-half-past-nine-220150.mp3',birds:'11325622-bird-sounds-241394.mp3',
+mobile:'freesound_community-baby-music-mobile-23893.mp3',dog:'dragon-studio-dog-bark-sound-effect-322989.mp3',cat:'dragon-studio-cute-cat-meow-472372.mp3',
+purr:'dragon-studio-purring-cat-401727.mp3',carDoorOpen:'dragon-studio-open-car-door-372469.mp3',carDoorClose:'kamranbashirb-car-door-shut-297266.mp3',
+carStart:'pwlpl-car-engine-start-sound-effect-521106.mp3',carRun:'manshaofficial-diesel-car-engine-sound-111994.mp3',carStop:'spinopel-turn-off-the-car-engine-345716.mp3',
+phone:'soundreality-phone-ringtone-sound-294438.mp3',message:'universfield-happy-message-ping-351298.mp3',cash:'dragon-studio-cash-register-kaching-376867.mp3',
+bottle:'freesound_community-sucking-on-a-popsicle-75782.mp3',drink:'freesound_community-drinking-water-from-a-glass-44654.mp3',eat:'relaxsoundsde-sound-eating-free-to-use-429258.mp3',
+crockery:'freesound_community-crockery-and-cutlery-19823.mp3',pill:'photos-pill-bottle-shake-415796.mp3',heart:'soundreality-heart-beat-137135.mp3',
+bath:'alex_jauk-bathtub-filling-sound-195144.mp3',shower:'jadeallencook-running-shower-water-sound-in-bathroom-with-steady-stream-339233 2.mp3',
+toothbrush:'alex_jauk-tooth-brushing-sound-195619.mp3',hairbrush:'54570407-hair-brushing-sound-481687.mp3',hairdryer:'freesound_community-sound-of-a-hairdryer-68897.mp3',
+clothes:'freesound_community-clothes-rustling-2-6286.mp3',wipes:'freesound_community-opening-cheese-slice-packet-75858.mp3',toilet:'vibehorn-toilet-flush-fx-3-424983.mp3',
+fry:'shut_up_ghost-frying-food-cooking-kitchen-free-sound-effect-382865.mp3',washer:'freesound_community-washing-machine-working-22260.mp3',
+microwave:'alex_jauk-microwaving-207596.mp3',microwaveDoor:'tommylynn-microwave-opening-and-closing-369266.mp3',
+ambulance:'u_xg7ssi08yr-ambulance-siren-363656.mp3',rain:'dragon-studio-copyright-free-rain-sounds-331497.mp3'
+};
+
+function o(name,type,x,y,w,h,data={}){return{name,type,x,y,w,h,data}}
+function itemObj(n,x,y){return o(n,'carry',x,y,24,14)}
+const AREAS={
+living:{name:'Living Room',amb:'tv',objects:[o('kitchen door','door',4,8,30,15,{to:'kitchen'}),o('hallway door','door',36,8,30,15,{to:'hall'}),o('garden door','door',68,8,27,15,{to:'garden'}),o('sofa','seat',8,58,30,20),o('television','active',67,38,25,15),o('toy box','container',55,62,32,18,{contents:['rattle','toy','squeaky toy']}),o('Grandma','person',15,32,24,14,{role:'grandma'})]},
+kitchen:{name:'Kitchen',objects:[o('living room door','door',4,8,30,15,{to:'living'}),o('hallway door','door',36,8,30,15,{to:'hall'}),o('fridge','container',5,30,25,22,{contents:['bottle','milk','juice','snack','meal ingredients']}),o('cupboard','container',36,30,25,22,{contents:['plate','bowl','cup','wipes']}),o('cooker','active',70,30,24,22),o('microwave','active',8,65,25,17),o('sink','water',38,65,25,18),o('highchair','highchair',70,70,22,16)]},
+hall:{name:'Hallway',objects:[o('living room door','door',4,10,28,15,{to:'living'}),o('kitchen door','door',35,10,28,15,{to:'kitchen'}),o('stairs','door',68,10,25,15,{to:'landing'}),o('front door','door',35,55,30,18,{to:'frontGarden'})]},
+landing:{name:'Upstairs Landing',objects:[o('stairs down','door',5,10,30,15,{to:'hall'}),o('bedroom door','door',37,10,28,15,{to:'bedroom'}),o('bathroom door','door',68,10,28,15,{to:'bathroom'}),o('nursery door','door',37,55,28,15,{to:'nursery'})]},
+bedroom:{name:'Bedroom',objects:[o('landing door','door',4,8,30,15,{to:'landing'}),o('bed','sleep',5,40,32,22),o('wardrobe','container',55,35,32,20,{contents:['clothes','pyjamas','school uniform']}),o('school bag','container',10,70,30,15,{contents:['paper','pens','books','lunch box']})]},
+nursery:{name:'Nursery',amb:'mobile',objects:[o('landing door','door',4,8,30,15,{to:'landing'}),o('cot','sleep',5,35,30,24),o('changing table','change',42,35,32,20),itemObj('nappies',5,70),itemObj('wipes',32,70),itemObj('baby cream',58,70),o('music mobile','active',40,15,30,14),itemObj('rattle',76,70)]},
+bathroom:{name:'Bathroom',objects:[o('landing door','door',4,8,30,15,{to:'landing'}),o('bath','bath',5,35,30,22),o('shower','shower',42,35,26,22),o('sink','water',72,35,22,16),o('toilet','toilet',72,65,22,17),itemObj('toothbrush',5,70),itemObj('hair brush',34,70),itemObj('hair dryer',62,70),o('medicine cupboard','container',35,15,30,16,{contents:['medicine','thermometer']})]},
+garden:{name:'Garden',amb:'birds',objects:[o('living room door','door',5,8,30,15,{to:'living'}),o('front path','door',38,8,28,15,{to:'frontGarden'}),o('swing','play',8,45,28,22),o('slide','play',60,45,28,22),o('dog','pet',38,30,25,16),o('cat','pet',65,30,20,15)]},
+frontGarden:{name:'Front Garden',objects:[o('front door','door',8,10,28,16,{to:'hall'}),o('street gate','door',45,10,28,16,{to:'street'}),o('car','car',38,60,35,20)]},
+street:{name:'Street',objects:[o('home gate','door',8,10,28,16,{to:'frontGarden'}),o('shop path','door',42,10,28,16,{to:'shop'}),o('school path','door',72,10,24,16,{to:'school'}),o('nursery path','door',72,28,24,16,{to:'nurseryPlace'}),o('doctor path','door',8,45,28,16,{to:'doctor'}),o('hospital road','door',42,45,28,16,{to:'hospital'}),o('call ambulance','ambulance',42,62,28,12),o('park path','door',72,55,24,16,{to:'park'}),o('adoption centre','door',8,75,35,16,{to:'adoption'}),o('animal shelter','door',52,75,35,16,{to:'shelter'})]},
+shop:{name:'Supermarket',amb:'supermarket',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('trolley bay','trolley',5,35,30,18),o('trolley child seat','trolleySeat',38,35,34,16),o('basket','carry',75,35,20,16),o('baby aisle','container',48,55,38,18,{contents:['nappies','wipes','baby cream','bottles']}),o('food aisle','container',8,60,34,18,{contents:['snack','fruit','meal ingredients','drink','biscuits']}),o('checkout','checkout',55,80,30,16)]},
+school:{name:'School',amb:'classroom',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('teacher','person',35,25,30,18,{role:'teacher'}),o('school bell','sound',8,30,25,18),o('classroom','schoolPlace',55,58,30,18),o('desk','surface',8,58,26,18)]},
+nurseryPlace:{name:'Nursery',amb:'mobile',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('staff member','person',35,25,32,18,{role:'nursery'}),o('nap room','schoolPlace',8,55,30,16),o('play room','schoolPlace',45,55,35,16),o('meal room','schoolPlace',45,78,35,14)]},
+doctor:{name:'Doctor Surgery',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('doctor','person',8,25,30,18,{role:'doctor'}),o('receptionist','person',52,25,34,16,{role:'receptionist'}),itemObj('thermometer',45,55),itemObj('medicine',8,65),o('chairs','seat',48,75,30,16)]},
+hospital:{name:'Hospital',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('nurse','person',8,25,28,18,{role:'nurse'}),o('doctor','person',42,25,28,18,{role:'doctor'}),itemObj('thermometer',45,55),o('monitor','sound',8,65,30,16),o('bed','sleep',45,75,35,18),o('ambulance bay','sound',62,88,30,10)]},
+park:{name:'Park',amb:'playground',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('birds','sound',55,10,28,18),o('swing','play',8,55,28,18),o('slide','play',58,55,28,18),o('dog','pet',37,38,25,16)]},
+adoption:{name:'Adoption Centre',amb:'baby',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('receptionist','person',35,20,32,18,{role:'adoption'}),o('baby room','adoptRoom',8,55,30,16),o('children room','adoptRoom',45,55,35,16),o('meeting room','seat',45,78,35,14)]},
+shelter:{name:'Animal Shelter',amb:'dog',objects:[o('street exit','door',5,8,30,15,{to:'street'}),o('staff member','person',35,20,32,18,{role:'shelter'}),o('dog kennels','petAdopt',8,55,30,16,{kind:'dog'}),o('cat room','petAdopt',55,55,30,16,{kind:'cat'})]}
+};
+
+let game=null,area='living',current=null,container=null,containerCurrent=null,childId=null,convo=null,speechOn=true,soundsOn=true,loops={},lastName='',lastStep=0,driveOptions=[],motionReady=false,lastTilt=0;
+
+function $(id){return document.getElementById(id)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function speak(t){if(!speechOn)return;try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=.95;u.pitch=1.05;let v=speechSynthesis.getVoices();if(v.length)u.voice=v.find(x=>/samantha|tessa|serena|moira|kate|susan|female/i.test(x.name))||v[0];speechSynthesis.speak(u)}catch(e){}}
+function audio(n,v=1,loop=false){if(!soundsOn||!S[n])return null;try{let a=new Audio(S[n]);a.volume=v;a.loop=loop;a.play().catch(()=>{});return a}catch(e){return null}}
+function one(n,v=1,stopAfter=0){let a=audio(n,v,false);if(a&&stopAfter)setTimeout(()=>{try{a.pause();a.currentTime=0}catch(e){}},stopAfter);return a}
+function startLoop(k,n,v=1){if(loops[k]||!S[n])return;let a=audio(n,v,true);if(a)loops[k]=a}
+function stopLoop(k){if(!loops[k])return;try{loops[k].pause();loops[k].currentTime=0}catch(e){}delete loops[k]}
+function stopAll(prefix){Object.keys(loops).filter(k=>!prefix||k.startsWith(prefix)).forEach(stopLoop)}
+
+function createGame(){
+ game={family:$('familyName').value.trim()||'Family',player:{name:$('playerName').value.trim()||'You',age:Number($('playerAge').value)||24,health:'well',need:'',ill:'',illStage:0,pregnant:false,pregStage:0,hunger:70,thirst:70,tired:20},money:150,bills:25,day:1,time:'Morning',weather:'sunny',carrying:null,bag:[],trolley:false,trolleyItems:[],car:{passengers:[],boot:[]},children:[],pets:[],people:[{id:'grandma',name:'Grandma',role:'grandma',health:'well',area:'living',x:15,y:32,locked:false}],messages:[],reports:[],memories:[],relationships:{Grandma:70,School:50,Nursery:50,Doctor:50,Hospital:50,Adoption:50},appointments:[],emergencies:[],followUps:[],birthPlan:'undecided',relationshipsByChild:{},items:{},adoption:[],babysitter:null,lastArea:'living',lastRealTime:Date.now(),worldLog:[],calendar:[],realClock:true};
+ let st=$('startType').value;
+ if(st==='baby'||st==='multiple')addChild(rand(['Maiva','Sophia','Lily','Ava']),7);
+ if(st==='child'||st==='multiple')addChild(rand(['Mia','Grace','Amelia','Ruby']),84);
+ if(st==='pregnant'){game.player.pregnant=true;game.player.pregStage=1}
+ addPet('cat',false);
+ generateAdoptionChildren(false);
+ notice('Family created.');
+ saveGame(false);
+ showGame();
+}
+function addChild(name,age){game.children.push({id:'c'+Date.now()+Math.random(),name,age,loc:age<12?'nursery':age<48?'living':'bedroom',x:age<12?18:48,y:age<12?45:60,pos:age<12?'in cot':'floor',need:'',ill:'',illStage:0,allergy:rand(['none','none','none','peanut','pollen','dairy']),health:'well',hunger:70,thirst:70,tired:20,hygiene:80,happy:65,activity:age<12?'sleeping':'settled',enrolled:false,consequence:0,admitted:false,schoolMood:'okay',routine:'home',friends:[],likes:[rand(['rattles','stories','music','park','dogs','drawing'])],personality:rand(['gentle','curious','playful','quiet','chatty']),memory:[],currentPlan:'home'})}
+function addPet(kind='dog',announce=true){if(!game)return;game.pets.push({id:'p'+Date.now()+Math.random(),kind,name:kind==='cat'?'Cat':'Dog',loc:kind==='cat'?'living':'garden',x:kind==='cat'?60:38,y:kind==='cat'?55:48,happy:70});if(announce)notice('Adopted a '+kind+'.')}
+function saveGame(a=true){if(!game)return;game.lastArea=area;game.lastRealTime=Date.now();localStorage.setItem('familyCareV10',JSON.stringify({game,area,speechOn,soundsOn}));if(a)notice('Saved.')}
+function loadGame(){let raw=localStorage.getItem('familyCareV10');if(!raw){alert('No saved game yet.');return}let d=JSON.parse(raw);game=d.game;migrateV10();area=d.area||game.lastArea||'living';speechOn=d.speechOn??true;soundsOn=d.soundsOn??true;applyOfflineProgression();showGame()}
+function resetGame(){localStorage.removeItem('familyCareV10');location.reload()}
+function cur(){return AREAS[area]}
+function itemKey(){return area}
+function showGame(){show('game');render();speak(cur().name);updateSoundscape()}
+
+function targets(){
+ let arr=cur().objects.map((x,i)=>({...x,kind:x.type==='door'?'door':'object',id:'o'+i}));
+ let kids=game.children.filter(c=>c.loc===area).map(c=>({name:c.name,type:'child',x:c.x,y:c.y,w:24,h:15,kind:'child',id:c.id,child:c.id}));
+ let pets=game.pets.filter(p=>p.loc===area).map(p=>({name:p.name,type:'pet',x:p.x,y:p.y,w:23,h:14,kind:'pet',id:p.id,pet:p.id}));
+ let people=game.people.filter(p=>p.area===area).map(p=>({name:p.name,type:p.role,x:p.x,y:p.y,w:24,h:15,kind:'person',id:p.id,person:p.id}));
+ let dropped=(game.items[itemKey()]||[]).map((it,i)=>({name:it.label,type:'dropped',x:it.x,y:it.y,w:22,h:13,kind:'dropped',id:'d'+i,idx:i}));
+ let adoptees=(area==='adoption'?(game.adoption||[]).map((a,i)=>({name:a.name,type:'adoptionChild',x:12+(i%3)*28,y:28+Math.floor(i/3)*22,w:24,h:15,kind:'adoptionChild',id:'a'+i,adoptIndex:i})):[]);
+ return arr.concat(kids,pets,people,dropped,adoptees)
+}
+function render(){
+ let c=cur();
+ $('placeTitle').textContent=c.name;
+ $('status').textContent=statusText();
+ $('carryCard').innerHTML=game.carrying?'<strong>Carrying:</strong> '+game.carrying.label:'<strong>Carrying:</strong> nothing';
+ let w=$('world');w.innerHTML='';
+ targets().forEach(t=>{let d=document.createElement('div');d.className='obj '+(t.kind==='child'?'childObj':t.kind==='pet'?'petObj':t.kind==='person'?'personObj':t.kind==='door'?'doorObj':'');d.id='obj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=t.name;w.appendChild(d)});
+ setFocus(null);
+}
+function statusText(){return `${game.player.name}, age ${game.player.age}. Health: ${game.player.health}${game.player.need==='ill'?' ('+game.player.ill+' stage '+game.player.illStage+')':''}. Day ${game.day}, ${game.time}. Weather: ${game.weather}. Money: ${game.money}. Carrying: ${game.carrying?game.carrying.label:'nothing'}. ${game.trolley?'Pushing trolley. ':''}${game.player.pregnant?'Pregnant, stage '+game.player.pregStage+'. ':''}`}
+function setFocus(t){current=t;document.querySelectorAll('.obj').forEach(e=>e.classList.remove('target'));if(t){let el=$('obj_'+t.id);if(el)el.classList.add('target');$('focus').innerHTML='<strong>Touching:</strong> '+t.name+'<br><strong>Action:</strong> '+hint(t)}else $('focus').innerHTML='<strong>Touching:</strong> nothing'}
+function hint(t){if(t.kind==='adoptionChild')return 'meet this child';if(t.kind==='door')return'go through';if(t.kind==='child')return game.carrying?'use item on child':'pick up or talk';if(t.kind==='person')return'talk';if(t.kind==='pet')return'pet or care';if(t.type==='container')return'open and explore inside';if(t.type==='trolley')return'push trolley';if(t.type==='trolleySeat')return'place carried baby/toddler in trolley seat';if(t.type==='car')return'car and passengers';if(t.type==='checkout')return'pay';if(t.type==='petAdopt')return'meet animals';if(t.type==='ambulance')return'call ambulance for urgent illness';if(t.type==='adoptRoom')return'meet children';if(t.type==='carry'||t.type==='tool')return'pick up';return'interact'}
+function objectAt(x,y,box='world'){let r=$(box).getBoundingClientRect();let px=(x-r.left)/r.width*100,py=(y-r.top)/r.height*100;let list=box==='world'?targets():containerTargets();return list.find(t=>px>=t.x&&px<=t.x+t.w&&py>=t.y&&py<=t.y+t.h)}
+function handleTouch(touch){let now=Date.now();if(now-lastStep>360){lastStep=now;if(game.trolley&&area==='shop')one('trolley',.55,650);else one('footsteps',.65,450)}let t=objectAt(touch.clientX,touch.clientY);if(t){setFocus(t);if(t.name!==lastName){lastName=t.name;speak(t.name);if(t.type==='sound')playObjectSound(t.name)}}}
+$('world').addEventListener('touchstart',e=>handleTouch(e.changedTouches[0]),{passive:true});
+$('world').addEventListener('touchmove',e=>handleTouch(e.changedTouches[0]),{passive:true});
+$('world').addEventListener('touchend',()=>{lastName=''}, {passive:true});
+
+function advanceAction(){advanceTime();playerNeeds();childNeeds();pregnancyTick();familyMovement();independentChildActions();schoolNurseryEvents();hospitalWardTick();emergencyTick();followUpTick();petTick();relationshipTick();carSafetyCheck();saveGame(false)}
+function advanceTime(){syncRealClock();let a=['Morning','Afternoon','Evening','Night'];if(Math.random()<.35){let i=a.indexOf(game.time)+1;if(i>=a.length){i=0;game.day++;ageTick();if(game.day%5===0){game.money-=game.bills;notice('Bills paid.')}}game.time=a[i]}}
+function interact(){
+ if(!current){notice('Nothing selected.');return}
+ let t=current;
+ if(t.kind==='door'){goArea(t.data.to);return}
+ if(t.kind==='child'){interactChild(child(t.child));return}
+ if(t.kind==='person'){startConversation(t.name,t.type);return}
+ if(t.kind==='pet'){interactPet(pet(t.pet));return}
+ if(t.kind==='adoptionChild'){meetAdoptionChild(t.adoptIndex);return}
+ if(t.kind==='dropped'){let a=game.items[itemKey()]||[],it=a.splice(t.idx,1)[0];if(it){game.carrying=it;notice('Picked up '+it.label)}game.items[itemKey()]=a;render();return}
+ if(t.type==='container'){openContainer(t);return}
+ if(t.type==='trolley'){game.trolley=true;one('trolley',.55,650);notice('You start pushing the trolley.');render();return}
+ if(t.type==='trolleySeat'){putChildInTrolleySeat();return}
+ if(t.type==='carry'||t.type==='tool'){pickUp(t);return}
+ if(t.type==='checkout'){checkout();return}
+ if(t.type==='car'){prepareCar();return}
+ if(t.type==='petAdopt'){adoptPet(t.data.kind);return}
+ if(t.type==='ambulance'){callAmbulance();return}
+ if(t.type==='adoptRoom'){openAdoption();return}
+ if(['active','bath','shower','water','toilet'].includes(t.type)){useFixed(t);return}
+ if(t.type==='sound'){playObjectSound(t.name);return}
+ if(game.carrying&&['sleep','highchair','seat','surface','change','bath','play'].includes(t.type)){useOrPlace();return}
+ notice('You use '+t.name+'.');advanceAction()
+}
+function goArea(to){stopAll();area=to;one('door');advanceAction();showGame()}
+function useFixed(t){let n=t.name;if(n==='television'){toggleLoop('room_tv','tv',.35);notice('Television toggled.');return}if(n==='music mobile'){toggleLoop('mobile','mobile',.5);notice('Music mobile toggled.');return}if(t.type==='shower'){toggleLoop('use_shower','shower',.8);notice('Shower toggled.');return}if(t.type==='bath'){one('bath');notice('Bath is filling.');advanceAction();return}if(n==='cooker'){startTimed('cooker','fry',9000,'Cooking finished.');advanceAction();return}if(n==='microwave'){one('microwaveDoor');startTimed('microwave','microwave',6500,'Microwave finished.');advanceAction();return}if(t.type==='water'){one('splash');notice('Water runs.');advanceAction();return}if(t.type==='toilet'){one('toilet');notice('The toilet flushes.');advanceAction();return}}
+function pickUp(t){let type=t.name;if(type==='vacuum cleaner')type='vacuum';if(type==='hair brush')type='hairbrush';if(type==='hair dryer')type='hairdryer';game.carrying={type,label:t.name};one(type==='hairbrush'?'hairbrush':type==='hairdryer'?'hairdryer':type==='vacuum'?'vacuum':'beep',.7,type==='vacuum'?0:1200);if(type==='vacuum')startLoop('use_vacuum','vacuum',.8);notice('Picked up '+t.name+'.');render()}
+function openContainer(t){container=t;one(t.name==='fridge'?'fridgeOpen':t.name==='cupboard'?'cupboard':'paper');containerCurrent=null;$('containerTitle').textContent=t.name;$('containerInfo').textContent='Explore inside '+t.name+'.';show('containerScreen');renderContainer();speak('Inside '+t.name)}
+function containerTargets(){if(!container)return[];let contents=container.data.contents||[];return contents.map((name,i)=>({name,type:'containerItem',x:10+(i%3)*30,y:15+Math.floor(i/3)*22,w:25,h:15,id:'ci'+i,idx:i}))}
+function renderContainer(){let w=$('containerWorld');w.innerHTML='';containerTargets().forEach(t=>{let d=document.createElement('div');d.className='obj';d.id='cobj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=t.name;w.appendChild(d)});$('containerFocus').innerHTML='<strong>Touching:</strong> nothing'}
+$('containerWorld').addEventListener('touchstart',e=>handleContainer(e.changedTouches[0]),{passive:true});
+$('containerWorld').addEventListener('touchmove',e=>handleContainer(e.changedTouches[0]),{passive:true});
+function handleContainer(touch){let t=objectAt(touch.clientX,touch.clientY,'containerWorld');if(t){containerCurrent=t;document.querySelectorAll('#containerWorld .obj').forEach(e=>e.classList.remove('target'));let el=$('cobj_'+t.id);if(el)el.classList.add('target');$('containerFocus').innerHTML='<strong>Touching:</strong> '+t.name;speak(t.name)}}
+function takeContainerItem(){if(!containerCurrent){notice('No item selected.');return}let it=item(containerCurrent.name);if(area==='shop'&&game.trolley){game.trolleyItems.push(it.label);one('beep');notice(it.label+' added to trolley.')}else{game.carrying=it;notice('Picked up '+it.label+'.')}advanceAction();showGame()}
+function closeContainer(){if(container&&container.name==='fridge')one('fridgeClose');container=null;containerCurrent=null;showGame()}
+function item(label){let type=label;if(label==='bottles')type='bottle';if(label==='meal ingredients')type='ingredients';if(label==='school uniform'||label==='pyjamas')type='clothes';if(label==='lunch box')type='meal';return{type,label}}
+
+function useOrPlace(){if(!game.carrying){notice('You are not carrying anything.');return}if(!current){notice('Find a person, pet, or place first.');return}if(current.kind==='child'){useOnChild(game.carrying,child(current.child));return}if(current.kind==='pet'){useOnPet(game.carrying,pet(current.pet));return}if(game.carrying.type==='child'){placeChild(game.carrying,current);return}if(game.carrying.type==='vacuum')stopLoop('use_vacuum');(game.items[itemKey()] ||= []).push({...game.carrying,x:current.x,y:Math.min(86,current.y+12)});notice('Put down '+game.carrying.label+'.');game.carrying=null;advanceAction();render()}
+function placeChild(it,target){let c=child(it.id);if(!c)return;let p=target.type,n=target.name;if(!['sleep','highchair','seat','surface','change','bath','play','trolleySeat'].includes(p)){notice(c.name+' cannot be placed there safely.');return}c.loc=area;c.x=target.x;c.y=target.y;c.pos=p==='bath'?'in the bath':p==='sleep'?'in '+n:p==='highchair'?'in the highchair':p==='change'?'on the changing table':p==='trolleySeat'?'in the trolley child seat':'on '+n;if(p==='sleep'){c.need=c.need==='tired'?'':c.need;c.tired=0;c.activity='sleeping';one('blanket')}else if(p==='bath'){c.need=c.need==='dirty'?'':c.need;one('bath')}else if(p==='trolleySeat'){one('trolley',.45,650)}notice('You place '+c.name+' '+c.pos+'.');game.carrying=null;advanceAction();render();updateSoundscape()}
+function putChildInTrolleySeat(){if(!game.carrying||game.carrying.type!=='child'){notice('Pick up a baby or toddler first.');return}placeChild(game.carrying,current)}
+function interactChild(c){if(!c)return;if(game.carrying){useOnChild(game.carrying,c);return}if(c.age<60){game.carrying={type:'child',id:c.id,label:c.name};c.loc='carried';c.pos='carried';one(c.age<18?'baby':'childLaugh');notice('Picked up '+c.name+'.');render();updateSoundscape();return}childId=c.id;talkToChild()}
+function useOnChild(it,c){if(!c)return;if(it.type==='bottle'){if(c.age>=48){childSay(c,"I don't need a bottle.");return}one('bottle');c.hunger=100;c.need='';c.activity='settled';game.carrying=null;notice(c.name+' drinks.');advanceAction();updateSoundscape();return}if(['meal','snack','fruit','biscuits','ingredients'].includes(it.type)){if(c.allergy==='peanut'&&it.label.includes('biscuit')){allergyReaction(c,'peanut');game.carrying=null;return}one('eat');one('crockery');c.hunger=100;c.need='';game.carrying=null;notice(c.name+' eats.');advanceAction();updateSoundscape();return}if(['drink','juice','milk','cup'].includes(it.type)){if(c.allergy==='dairy'&&it.label==='milk'){allergyReaction(c,'dairy');game.carrying=null;return}one('drink');c.thirst=100;c.need='';game.carrying=null;notice(c.name+' drinks.');advanceAction();updateSoundscape();return}if(it.type==='medicine'){treatChild(c,'medicine');game.carrying=null;advanceAction();updateSoundscape();return}if(it.type==='thermometer'){one('beep');notice(childAssessment(c));advanceAction();return}if(it.type==='rattle'||it.type==='toy'||it.type==='squeaky toy'){one(it.type==='rattle'?'rattle':'squeak');c.need='';c.activity='playing';notice(c.name+' plays.');advanceAction();updateSoundscape();return}if(['nappies','wipes','baby cream'].includes(it.type)){one('wipes');c.hygiene=100;c.need=c.need==='dirty'?'':c.need;notice(c.name+' is changed.');game.carrying=null;advanceAction();updateSoundscape();return}one('beep');notice(c.name+' does not need that right now.')}
+function allergyReaction(c,type){c.need='ill';c.ill='allergy';c.illStage=3;c.health='allergic reaction';one('cough');setTimeout(()=>one('heart'),1400);notice(c.name+' is having an allergic reaction to '+type+'. Call doctor or hospital.');addMessage('Emergency','Possible allergic reaction for '+c.name+'. Get medical help.');updateSoundscape()}
+function childAssessment(c){if(c.need!=='ill')return c.name+' seems okay.';if(c.ill==='cold')return c.name+' has a cough and sniffles. Stage '+c.illStage+'.';if(c.ill==='chest')return c.name+' has a bad cough and may need treatment.';if(c.ill==='stomach')return c.name+' has tummy symptoms.';if(c.ill==='allergy')return c.name+' may be having an allergic reaction.';return c.name+' seems poorly.'}
+function treatChild(c,source){if(c.need==='ill'||c.ill){one('pill');c.health='under treatment';c.consequence=0;c.illStage=Math.max(0,c.illStage-1);if(c.illStage<=0){c.health='recovering';c.need='';c.ill='';notice(c.name+' is recovering.')}else notice(c.name+' is under treatment.')}else notice(c.name+' does not need treatment.')}
+function checkout(){if(!game.trolleyItems.length){notice('Your trolley is empty.');return}let cost=game.trolleyItems.length*5;if(game.money<cost){notice('Not enough money.');return}game.money-=cost;game.car.boot=game.car.boot.concat(game.trolleyItems);one('cash');notice('Paid '+cost+' coins. Shopping bags are now in the car boot.');game.trolleyItems=[];game.trolley=false;advanceAction();render()}
+
+
+function callAmbulance(){
+ let kid=child(childId)||game.children.find(c=>c.need==='ill'||c.health==='worse'||c.ill==='allergy');
+ if(!kid){notice('No urgent child selected.');return}
+ one('ambulance');
+ let msg=admitChild(kid);
+ notice('Ambulance called. '+msg);
+ remember('Ambulance called for '+kid.name+'.');
+ advanceAction();
+ showGame();
+}
+
+function prepareCar(){renderCar();show('carScreen')}
+function renderCar(){let names=game.car.passengers.map(id=>child(id)?.name).filter(Boolean);$('carInfo').innerHTML='Passengers: '+(names.length?names.join(', '):'none')+'<br>Boot: '+(game.car.boot.length?game.car.boot.join(', '):'empty')+'<br>Selected child: '+(childId?child(childId)?.name:'none')+'<br>If you arrive somewhere with a baby or toddler in the car, use Take All Children Out.'}
+function putCurrentChildInCar(){let c=child(childId);if(!c){notice('Select a child from Family first.');return}if(c.age<60&&c.loc!=='carried'){notice('Pick '+c.name+' up first.');return}if(!game.car.passengers.includes(c.id))game.car.passengers.push(c.id);c.loc='car';c.pos=c.age<48?'in car seat':'in car';game.carrying=null;one('carDoorOpen');setTimeout(()=>one('carDoorClose'),900);notice(c.name+' is in the car.');advanceAction();renderCar()}
+function takeChildOutOfCar(){let c=child(childId)||child(game.car.passengers[0]);if(!c){notice('No selected child in car.');return}game.car.passengers=game.car.passengers.filter(id=>id!==c.id);c.loc=area;c.x=45;c.y=55;c.pos='floor';one('carDoorOpen');notice(c.name+' gets out of the car.');advanceAction();render();renderCar()}
+function takeAllChildrenOut(){let taken=[];game.car.passengers.slice().forEach(id=>{let c=child(id);if(c){c.loc=area;c.x=45+Math.random()*15;c.y=55;c.pos='floor';taken.push(c.name)}});game.car.passengers=[];one('carDoorOpen');notice(taken.length?'Took out: '+taken.join(', '):'No children in the car.');advanceAction();render();renderCar()}
+function takeShoppingFromBoot(){if(!game.car.boot.length){notice('Boot is empty.');return}game.bag=game.bag.concat(game.car.boot);notice('You take shopping bags from the boot.');game.car.boot=[];advanceAction();renderCar()}
+function startDriving(){if(game.children.some(c=>c.age<48&&homeAreas().includes(c.loc)&&!game.car.passengers.includes(c.id)&&game.babysitter!=='Grandma')){notice('A young child is still at home. Put them in the car or ask Grandma to babysit.');speak('A young child is still at home.');return}stopAll();one('carDoorClose');setTimeout(()=>one('carStart'),900);setTimeout(()=>startLoop('car','carRun',.65),1900);driveOptions=['frontGarden','shop','school','nurseryPlace','doctor','hospital','park','adoption','shelter'];newDrivePrompt();show('drive')}
+function homeAreas(){return['living','nursery','bedroom','kitchen','garden','bathroom','hall','landing']}
+function newDrivePrompt(){let loc=rand(driveOptions),side=rand(['left','right','ahead']);$('drivePrompt').textContent=AREAS[loc].name+' '+(side==='ahead'?'ahead':'on the '+side)+'.';$('driveStatus').textContent='Tilt '+side+' or use the buttons.';$('drive').dataset.loc=loc;$('drive').dataset.side=side;speak($('drivePrompt').textContent)}
+function driveLeft(){driveChoice('left')}function driveRight(){driveChoice('right')}function driveStraight(){driveChoice('ahead')}
+function driveChoice(c){let loc=$('drive').dataset.loc,side=$('drive').dataset.side;if(c===side){stopDriving(false);area=loc;showGame();if(game.car.passengers.length)notice('Children are still in the car. Take them out or put babies in the trolley seat.')}else{one('carRun',.5);newDrivePrompt()}}
+function stopDriving(back=true){stopLoop('car');one('carStop');one('carDoorOpen');if(back)showGame()}
+function requestMotion(){if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted'){motionReady=true;speak('Tilt driving enabled.')}}).catch(()=>alert('Motion permission was not granted.'))}else{motionReady=true;speak('Tilt driving enabled if this browser supports it.')}}window.addEventListener('deviceorientation',e=>{if(!$('drive').classList.contains('active')||!motionReady)return;let g=e.gamma||0,now=Date.now();if(now-lastTilt<2200)return;if(g<-18){lastTilt=now;driveLeft()}else if(g>18){lastTilt=now;driveRight()}})
+function startTimed(k,s,ms,msg){startLoop(k,s,.75);notice(msg.replace('finished','started'));setTimeout(()=>{stopLoop(k);one('beep');notice(msg)},ms)}
+function toggleLoop(k,s,v){loops[k]?stopLoop(k):startLoop(k,s,v)}
+
+
+
+
+
+function migrateV10(){
+ if(!game)return;
+ game.worldLog=game.worldLog||[];game.memories=game.memories||[];game.reports=game.reports||[];game.messages=game.messages||[];
+ game.relationships=game.relationships||{Grandma:70,School:50,Nursery:50,Doctor:50,Hospital:50,Adoption:50};
+ game.followUps=game.followUps||[];game.emergencies=game.emergencies||[];game.calendar=game.calendar||[];game.lastRealTime=game.lastRealTime||Date.now();
+ game.children=(game.children||[]).map(c=>Object.assign({illStage:0,admitted:false,friends:[],likes:['stories'],personality:'gentle',memory:[],currentPlan:'home'},c));
+ game.pets=game.pets||[];game.people=game.people||[{id:'grandma',name:'Grandma',role:'grandma',health:'well',area:'living',x:15,y:32,locked:false}];
+}
+function worldLog(text){game.worldLog=game.worldLog||[];game.worldLog.unshift('Day '+game.day+', '+game.time+': '+text);game.worldLog=game.worldLog.slice(0,100)}
+function openWorldSummary(){
+ game.worldLog=game.worldLog||[];
+ let kids=game.children.map(c=>c.name+': '+observe(c)+', '+c.health+', '+locText(c)).join('<br>')||'No children.';
+ let pets=(game.pets||[]).map(p=>p.name+': '+p.kind+', '+(p.unwell?'unwell':'well')+', '+(AREAS[p.loc]?.name||p.loc)).join('<br>')||'No pets.';
+ $('worldSummaryInfo').innerHTML='<strong>Family</strong><br>'+kids+'<br><br><strong>Pets</strong><br>'+pets+'<br><br><strong>World log</strong><br>'+(game.worldLog.slice(0,25).join('<br>')||'No world events yet.');
+ show('worldSummary');
+}
+function applyOfflineProgression(){
+ if(!game)return;let now=Date.now(),last=game.lastRealTime||now,diff=Math.max(0,now-last),minutes=Math.floor(diff/60000);
+ if(minutes<2){game.lastRealTime=now;return}
+ let ticks=Math.min(72,Math.floor(minutes/10));worldLog('You were away for about '+minutes+' minutes. The world kept running.');
+ for(let i=0;i<ticks;i++)offlineTick(i,Math.floor(minutes/1440));
+ game.lastRealTime=now;saveGame(false);
+}
+function offlineTick(i,days){
+ advanceTime();
+ game.children.forEach(c=>{
+  if(c.loc==='carried')c.loc='living';
+  if(c.health==='admitted'){c.illStage=Math.max(0,(c.illStage||1)-1);if(c.illStage<=0){c.health='ready for discharge';c.need='';c.ill='';worldLog(c.name+' improved in hospital.')}return}
+  if(c.need==='ill'){
+   if(c.health!=='under treatment'){c.illStage=Math.min(4,(c.illStage||1)+1);if(c.illStage>=3){c.health='worse';worldLog(c.name+' illness worsened while you were away.')}}
+   else{c.illStage=Math.max(0,(c.illStage||1)-1);if(c.illStage<=0){c.need='';c.ill='';c.health='recovering';worldLog(c.name+' started recovering.')}}
+  }else{c.hunger-=4;c.thirst-=4;c.tired+=4;c.hygiene-=2;if(c.hunger<25)c.need='hungry';else if(c.thirst<25)c.need='thirsty';else if(c.tired>92)c.need='tired';else if(c.hygiene<20&&c.age<48)c.need='dirty';else if(Math.random()<.025){c.need='ill';c.ill=rand(['cold','stomach','ear','chest']);c.illStage=1;c.health='poorly';worldLog(c.name+' became unwell.')}}
+ });
+ if(game.player.pregnant&&Math.random()<.4){game.player.pregStage++;worldLog('Pregnancy progressed to stage '+game.player.pregStage+'.');if(game.player.pregStage>=9){let name=rand(['Ava','Lily','Sophie','Ella','Noah','Leo','Isla','Maya']);addChild(name,0);game.player.pregnant=false;game.player.pregStage=0;worldLog('The baby was born. Welcome '+name+'.');addMessage('Birth','The baby has arrived. Welcome '+name+'.')}}
+ if(days>0&&i===0)game.children.forEach(c=>{c.age+=Math.min(days,30)});
+}
+function generatedReply(role,text){
+ let l=text.toLowerCase();let kid=child(childId)||game.children.find(x=>x.need)||game.children[0];let patient=kid?kid.name:'the child';
+ if(role==='grandma'){if(l.includes('shopping'))return 'Yes dear, I can come shopping. I will wait near the front door and help with the children.';if(l.includes('babysit')||l.includes('watch'))return 'Of course. I will babysit and phone you if anyone becomes upset or unwell.';if(l.includes('where'))return 'I am in '+(AREAS[game.people.find(p=>p.id==='grandma')?.area]?.name||'the house')+'. I will stay still while you come to me.';if(l.includes('ill')||l.includes('sick'))return 'Tell me the symptoms, how long it has been happening, and whether they are eating, drinking and sleeping.';return 'I hear you. I am thinking about what you said, not just repeating myself.'}
+ if(role==='doctor'||role==='nurse'){if(l.includes('cough')&&!(l.includes('day')||l.includes('days')||l.includes('worse')||l.includes('temperature')||l.includes('fever')))return 'How many days has the cough been going on, and are they eating, drinking and sleeping?';if(kid&&(l.includes('day')||l.includes('days')||l.includes('worse')||l.includes('fever')||l.includes('temperature')||l.includes('not eating')||l.includes('not drinking')||l.includes('breathing')||l.includes('vomit')||l.includes('allergy')))return fullTreatment(kid,role==='nurse'?'Hospital':'Doctor');return 'I need symptoms, duration, temperature, food, drink and sleep. Then I will decide whether this is home care, medicine, follow-up or hospital.'}
+ if(role==='teacher'){if(l.includes('enroll')){if(kid){kid.enrolled=true;worldLog(kid.name+' enrolled.');return kid.name+' is now enrolled. I will send reports and call you if they are unwell.'}return 'I can enroll them once I know which child.'}if(l.includes('homework'))return 'I will send homework reports and tell you what support they need.';if(l.includes('friend'))return patient+' will be helped to make friends and settle in.';return 'I can help with enrollment, attendance, illness calls, lessons, homework, friends and reports.'}
+ if(role==='nursery'){if(l.includes('nap'))return 'We will record naps and tell you if sleep is difficult.';if(l.includes('meal')||l.includes('eat')||l.includes('food'))return 'We will record food, drinks and allergies.';if(l.includes('enroll')){if(kid){kid.enrolled=true;return kid.name+' is now enrolled at nursery.'}return 'I can enroll a toddler or young child.'}return 'We can support play, meals, naps, comfort, allergies and development.'}
+ if(role==='police')return 'I have logged this. If someone is unsafe, move to a safe place and wait for help.';
+ if(role==='fire')return 'If there is fire or smoke, leave immediately. Help is on the way.';
+ if(role==='adoption'||role==='adoptionChild'){if(l.includes('adopt'))return 'Adoption is a big decision. Meet the child, check their needs, then use the adoption screen when you are ready.';if(l.includes('play'))return 'They would like to play and get to know you safely.';return 'The adoption centre can tell you age, personality, allergies, differences and what the child needs from a family.'}
+ return 'I understand what you said. Tell me more so I can respond properly.';
+}
+function applyConversationEffects(c,l){
+ if(!game||!c)return;let kid=child(childId)||game.children[0];
+ if(c.role==='grandma'){let g=game.people.find(p=>p.id==='grandma');if(l.includes('shopping')||l.includes('come with')){g.area='frontGarden';g.x=25;g.y=55;g.locked=true;remember('Grandma agreed to come out.')}if(l.includes('babysit')||l.includes('watch')){game.babysitter='Grandma';g.locked=true;g.area=area;remember('Grandma babysat.')}if(l.includes('where'))g.locked=true}
+ if((c.role==='teacher'||c.role==='nursery')&&l.includes('enroll')&&kid){kid.enrolled=true;remember(kid.name+' was enrolled.')}
+ if(c.role==='adoptionChild'&&l.includes('adopt'))openAdoption();
+}
+function syncRealClock(){if(!game||!game.realClock)return;let h=new Date().getHours();if(h>=5&&h<12)game.time='Morning';else if(h>=12&&h<17)game.time='Afternoon';else if(h>=17&&h<21)game.time='Evening';else game.time='Night'}
+function petTick(){(game.pets||[]).forEach(p=>{p.age=(p.age||12);if(Math.random()<.01){p.unwell=true;addMessage('Pet care',p.name+' seems unwell and may need a vet.');worldLog(p.name+' seemed unwell.')}})}
+
+function remember(text){
+ game.memories=game.memories||[];
+ game.memories.unshift('Day '+game.day+', '+game.time+': '+text);
+ game.memories=game.memories.slice(0,80);
+}
+function openMemories(){
+ game.memories=game.memories||[];
+ $('memoriesInfo').innerHTML=(game.memories.slice(0,30).join('<br>')||'No memories yet.');
+ show('memories');
+}
+function openMap(){show('mapScreen')}
+function scheduleFollowUp(who,reason,days=2){
+ game.followUps=game.followUps||[];
+ game.followUps.push({who,reason,due:game.day+days});
+ addMessage('Calendar','Follow-up scheduled for '+who+': '+reason+'.');
+}
+function followUpTick(){
+ game.followUps=game.followUps||[];
+ game.followUps.forEach(f=>{
+   if(!f.done && game.day>=f.due){
+     f.done=true;
+     addMessage('Follow-up','Follow-up due for '+f.who+': '+f.reason+'.');
+     one('phone');
+   }
+ });
+}
+function emergencyTick(){
+ game.children.forEach(c=>{
+   if(c.need==='ill' && c.illStage>=3 && c.health!=='under treatment' && c.health!=='admitted'){
+     if(!game.emergencies.some(e=>e.child===c.id && !e.resolved)){
+       game.emergencies.push({child:c.id,type:c.ill,day:game.day,resolved:false});
+       addMessage('Emergency',c.name+' may need urgent care. Observation: '+observe(c)+'.');
+       one('ambulance');
+     }
+   }
+ });
+}
+function hospitalWardTick(){
+ game.children.forEach(c=>{
+   if(c.health==='admitted'){
+     if(Math.random()<0.55){
+       c.illStage=Math.max(0,(c.illStage||1)-1);
+       addMessage('Hospital ward','Nurse checked '+c.name+'. Observation: '+observe(c)+'.');
+       game.reports.unshift('Ward update: '+c.name+' checked. '+observe(c)+'.');
+       if(c.illStage<=0){
+         c.health='ready for discharge';
+         c.need='';
+         c.ill='';
+         addMessage('Hospital','The ward says '+c.name+' may be ready for discharge.');
+       }
+     }
+   }
+ });
+}
+function independentChildActions(){
+ game.children.forEach(c=>{
+   if(c.loc==='carried'||c.loc==='car'||c.admitted||c.health==='admitted') return;
+   if(c.need) return;
+   if(Math.random()<0.12){
+     let action=rand(['play','ask','rest','snack','wander','grandma']);
+     if(action==='play'){
+       c.activity=rand(['playing','babbling']);
+       if(c.age<36) one('rattle',.4,1000);
+       remember(c.name+' played independently.');
+     }
+     if(action==='ask' && c.age>=36){
+       addMessage(c.name,rand(['Can we go to the park?','Can I have a snack?','Can Grandma visit?','Can I play?']));
+       one('message');
+     }
+     if(action==='rest'){
+       c.activity='sleeping';c.tired=0;
+       remember(c.name+' fell asleep.');
+     }
+     if(action==='snack'){
+       c.hunger=Math.min(100,c.hunger+15);
+       remember(c.name+' had a small snack.');
+     }
+     if(action==='wander' && c.age>=12){
+       let places=c.age<48?['living','nursery','kitchen']:['living','kitchen','bedroom','garden','hall'];
+       c.loc=rand(places);c.x=20+Math.random()*60;c.y=35+Math.random()*40;c.pos='floor';
+     }
+     if(action==='grandma' && game.people.find(p=>p.id==='grandma')?.area===c.loc){
+       c.happy=Math.min(100,c.happy+10);
+       remember('Grandma spent time with '+c.name+'.');
+     }
+   }
+ });
+}
+function diagnose(c){
+ if(!c) return 'No patient selected.';
+ if(c.ill==='cold'){
+   if(c.illStage<=1) return 'mild cold';
+   if(c.illStage===2) return 'developing cold';
+   return 'bad cold, monitor chest symptoms';
+ }
+ if(c.ill==='chest') return c.illStage>=3?'possible chest infection':'chesty cough';
+ if(c.ill==='stomach') return c.illStage>=3?'stomach bug with dehydration risk':'stomach bug';
+ if(c.ill==='allergy') return 'allergic reaction';
+ if(c.ill==='ear') return 'possible ear infection';
+ if(c.ill==='sneeze') return 'sneezing illness or allergy symptoms';
+ return 'unwell but unclear';
+}
+function fullTreatment(c,place){
+ if(!c) return 'No child selected.';
+ if(!c.need && !c.ill) return c.name+' is stable right now.';
+ let diagnosis=diagnose(c);
+ if(c.ill==='allergy'||c.illStage>=3||c.health==='worse'){
+   return admitChild(c)+' Diagnosis: '+diagnosis+'.';
+ }
+ c.health='under treatment';
+ c.consequence=0;
+ c.illStage=Math.max(1,c.illStage||1);
+ scheduleFollowUp(c.name,diagnosis,2);
+ game.reports.unshift(place+' diagnosis: '+c.name+' has '+diagnosis+'. Treatment started.');
+ remember(c.name+' was treated for '+diagnosis+'.');
+ return c.name+' has '+diagnosis+'. Treatment started. Rest, fluids, monitoring and follow-up are planned.';
+}
+function goToSchoolOrNursery(c){
+ if(!c||!c.enrolled) return;
+ let dest=c.age<60?'nurseryPlace':'school';
+ c.loc=dest;c.x=45;c.y=55;c.pos='with staff';c.currentPlan=dest;
+ game.reports.unshift((c.age<60?'Nursery':'School')+' arrival: '+c.name+' arrived safely.');
+}
+function collectFromSchoolOrNursery(c){
+ if(!c) return;
+ c.loc='frontGarden';c.x=45;c.y=55;c.pos='floor';c.currentPlan='home';
+ game.reports.unshift('Pickup: '+c.name+' was collected.');
+}
+function startSchoolDay(){
+ let sent=[];
+ game.children.forEach(c=>{if(c.enrolled && !c.need && c.age>=24){goToSchoolOrNursery(c);sent.push(c.name)}});
+ notice(sent.length?'Sent to school/nursery: '+sent.join(', '):'No enrolled children ready to go.');
+ advanceAction();showGame();
+}
+function pickupAll(){
+ let picked=[];
+ game.children.forEach(c=>{if(c.loc==='school'||c.loc==='nurseryPlace'){collectFromSchoolOrNursery(c);picked.push(c.name)}});
+ notice(picked.length?'Picked up: '+picked.join(', '):'No children to pick up.');
+ advanceAction();showGame();
+}
+
+function carSafetyCheck(){
+ if(!game||!game.car||!game.car.passengers) return;
+ if(game.car.passengers.length && area!=='frontGarden' && area!=='street'){
+   game.car.passengers.forEach(id=>{
+     let c=child(id);
+     if(c && c.age<60){
+       addMessage('Safety',c.name+' is still in the car. Take them out.');
+       if(Math.random()<0.25){c.need='attention';c.health=c.health==='well'?'worried':c.health;}
+     }
+   });
+ }
+}
+function familyMovement(){
+ if(!game) return;
+ let g=game.people.find(p=>p.id==='grandma');
+ if(g && !g.locked && Math.random()<0.12){
+   g.area=rand(['living','kitchen','garden','hall']);
+   g.x=15+Math.random()*55;
+   g.y=25+Math.random()*45;
+ }
+ game.children.forEach(c=>{
+   if(c.loc==='carried'||c.loc==='car'||c.admitted) return;
+   if(c.need==='ill') return;
+   if(c.age<12) return;
+   if(Math.random()<0.18){
+     let possible=c.age<48?['living','nursery','kitchen','garden']:['living','kitchen','bedroom','garden','hall'];
+     c.loc=rand(possible);
+     c.x=25+Math.random()*55;
+     c.y=35+Math.random()*40;
+     c.pos='floor';
+     c.activity=rand(['playing','settled','babbling']);
+   }
+ });
+}
+function schoolNurseryEvents(){
+ game.children.forEach(c=>{
+   if(!c.enrolled) return;
+   if(c.need==='ill' && Math.random()<0.25){
+     let place=c.age<60?'Nursery':'School';
+     addMessage(place,c.name+' is unwell and needs collecting.');
+     game.reports=game.reports||[];
+     game.reports.unshift(place+' report: '+c.name+' became unwell. Observation: '+observe(c)+'.');
+     one('phone');
+   }
+   if(Math.random()<0.08 && !c.need){
+     let place=c.age<60?'Nursery':'School';
+     let report=rand([c.name+' ate well today.',c.name+' played happily.',c.name+' seemed tired today.',c.name+' joined activities today.']);
+     game.reports=game.reports||[];
+     game.reports.unshift(place+' report: '+report);
+   }
+ });
+}
+function relationshipTick(){
+ game.relationships=game.relationships||{Grandma:70,School:50,Nursery:50,Doctor:50};
+ if(game.babysitter==='Grandma') game.relationships.Grandma=Math.min(100,game.relationships.Grandma+1);
+}
+function dailyRoutine(){
+ if(!game) return;
+ let text=[];
+ game.children.forEach(c=>{
+   if(c.need==='hungry'){c.hunger=100;c.need='';text.push(c.name+' has food.');one('eat')}
+   else if(c.need==='thirsty'){c.thirst=100;c.need='';text.push(c.name+' has a drink.');one('drink')}
+   else if(c.need==='dirty'){c.hygiene=100;c.need='';text.push(c.name+' is changed.');one('wipes')}
+   else if(c.need==='tired'){c.tired=0;c.activity='sleeping';c.need='';text.push(c.name+' rests.');one('snore')}
+   else text.push(c.name+' is checked and settled.');
+ });
+ game.player.hunger=90;game.player.thirst=90;game.player.tired=Math.max(0,game.player.tired-25);
+ notice(text.join(' '));
+ advanceAction();
+ showGame();
+}
+function openReports(){
+ game.reports=game.reports||[];
+ let rel=game.relationships||{};
+ $('reportsInfo').innerHTML='<strong>Recent reports</strong><br>'+(game.reports.slice(0,12).join('<br>')||'No reports yet.')+'<br><br><strong>Relationships</strong><br>Grandma: '+(rel.Grandma||70)+'<br>School: '+(rel.School||50)+'<br>Nursery: '+(rel.Nursery||50)+'<br>Doctor: '+(rel.Doctor||50);
+ show('reports');
+}
+function admitChild(c){
+ if(!c) return 'No child selected.';
+ c.admitted=true;c.loc='hospital';c.x=45;c.y=75;c.pos='in hospital bed';c.health='admitted';c.need='ill';
+ addMessage('Hospital',c.name+' has been admitted for monitoring.');
+ game.reports=game.reports||[];
+ game.reports.unshift('Hospital admission: '+c.name+' admitted. Observation: '+observe(c)+'.');
+ return c.name+' has been admitted for monitoring. The hospital will treat them and update you.';
+}
+function dischargeChild(c){
+ if(!c) return 'No child selected.';
+ c.admitted=false;c.loc='frontGarden';c.x=45;c.y=55;c.pos='floor';c.health='recovering';c.need='';c.ill='';c.illStage=0;
+ addMessage('Hospital',c.name+' has been discharged and is recovering.');
+ return c.name+' has been discharged and is recovering at home.';
+}
+function meetAdoptionChild(i){
+ let a=(game.adoption||[])[i];
+ if(!a){notice('No child found.');return}
+ let text='This is '+a.name+'. Age '+ageText(a.age)+'. Personality '+a.personality+'. Difference '+a.diff+'. Allergy '+a.allergy+'.';
+ notice(text);
+ speak(text);
+ convo={type:'adoptionMeet',name:a.name,role:'adoptionChild',adoptIndex:i,history:[],log:[a.name+': '+(a.age<18?'Babble.':rand(['Hello.','Are you my new family?','I like playing.']))]};
+ renderConvo();
+}
+
+function playerNeeds(){let p=game.player;if(p.need)return;p.hunger-=Math.floor(Math.random()*5);p.thirst-=Math.floor(Math.random()*5);p.tired+=Math.floor(Math.random()*5);if(p.hunger<30)p.need='hungry';else if(p.thirst<25)p.need='thirsty';else if(p.tired>88)p.need='tired';else if(Math.random()<.02){p.need='ill';p.ill=rand(['cold','stomach','tiredness']);p.illStage=1;p.health='poorly'}}
+function childNeeds(){game.children.forEach(c=>{if((c.health==='under treatment'||c.health==='triaged'||c.health==='admitted')&&Math.random()<.55){c.illStage--;if(c.illStage<=0){c.need='';c.ill='';c.health='recovering';c.activity='settled';addMessage('Health',c.name+' is recovering.')}}if(c.need==='ill'&&c.health!=='under treatment'&&Math.random()<.35){c.illStage=Math.min(3,(c.illStage||1)+1);if(c.illStage>=3)c.health='worse';}if(c.need)return;c.hunger-=Math.floor(Math.random()*7);c.thirst-=Math.floor(Math.random()*6);c.tired+=Math.floor(Math.random()*7);c.hygiene-=Math.floor(Math.random()*4);if(c.hunger<35)c.need='hungry';else if(c.thirst<30)c.need='thirsty';else if(c.tired>82)c.need='tired';else if(c.hygiene<30&&c.age<48)c.need='dirty';else if(Math.random()<.035){c.need='ill';c.ill=rand(['cold','stomach','sneeze','ear','chest']);c.illStage=1;c.health='poorly'}else if(Math.random()<.05)c.need='attention';if(!c.need&&c.age<18)c.activity=rand(['sleeping','babbling','playing','settled'])})}
+function pregnancyTick(){let p=game.player;if(!p.pregnant)return;if(Math.random()<.2){p.pregStage++;if(p.pregStage===2)addMessage('Pregnancy','You feel tired and may need a check-up.');if(p.pregStage===4)addMessage('Pregnancy','It may be time for a scan appointment.');if(p.pregStage>=8){let name=rand(['Ava','Lily','Sophie','Ella','Noah','Leo']);addChild(name,0);p.pregnant=false;p.pregStage=0;notice('The baby has arrived. Welcome '+name+'.')}}}
+function ageTick(){game.children.forEach(c=>{if(game.day%10===0)c.age++});(game.pets||[]).forEach(p=>{p.age=(p.age||12)+(game.day%10===0?1:0)})}
+function restPlayer(){game.player.tired=0;game.player.need='';if(game.player.health==='poorly'||game.player.health==='under treatment'){game.player.illStage=Math.max(0,(game.player.illStage||1)-1);if(game.player.illStage<=0){game.player.health='recovering';game.player.need='';game.player.ill='';}else game.player.health='under treatment';}one('blanket');notice(game.player.name+' rests.');advanceAction();showGame()}
+
+function updateSoundscape(){stopAll('child_');stopAll('amb_');let amb=cur().amb;if(amb)startLoop('amb_'+area,amb,.25);if(game.weather==='rain'&&['garden','park','street'].includes(area))startLoop('amb_rain','rain',.4);else stopLoop('amb_rain');game.children.forEach(c=>{if(c.loc==='carried'||c.loc==='car'||c.loc!==area)return;let v=.82;if(c.need==='ill'){let s=c.ill==='cold'||c.ill==='chest'?'cough':c.ill==='sneeze'?'sneeze':c.ill==='stomach'?'stomach':'cry';startLoop('child_'+c.id,s,v)}else if(c.age<36&&['hungry','thirsty','attention'].includes(c.need))startLoop('child_'+c.id,'cry',v);else if(c.need==='tired'||c.activity==='sleeping')startLoop('child_'+c.id,'snore',.45);else if(c.activity==='playing')startLoop('child_'+c.id,'rattle',.45);else if(c.age<18&&(c.activity==='babbling'||c.activity==='settled'))startLoop('child_'+c.id,'baby',.35)})}
+function playObjectSound(n){if(n==='birds')one('birds');if(n==='school bell')one('schoolBell');if(n==='monitor')one('heart');if(n==='ambulance bay')one('ambulance')}
+function listen(){let sounds=[];targets().forEach(t=>{if(t.kind==='child'){let c=child(t.child);sounds.push(c.name+' is '+observe(c));}else if(t.kind==='person'){sounds.push(t.name+' is nearby.');}else if(t.kind==='pet'){sounds.push(t.name+' is nearby.');}else if(t.kind==='door'){sounds.push(t.name);}});let extra=[]; if(cur().amb) extra.push('background sound: '+cur().amb); if(game.trolley&&area==='shop') extra.push('the trolley is with you'); let text=(sounds.concat(extra)).length?(sounds.concat(extra)).join('. '):'You hear the room around you.';notice(text);speak(text)}
+
+function openFamily(){let p=game.player;let html='<div class="card"><strong>'+p.name+'</strong><br>Your character<br>Age: '+p.age+'<br>Health: '+p.health+'<br>Need: '+(p.need||'none')+'<br>Illness: '+(p.ill||'none')+' stage '+(p.illStage||0)+'<br>Pregnancy: '+(p.pregnant?'stage '+p.pregStage:'no')+'</div>';html+=game.children.map(c=>'<div class="card"><strong>'+c.name+'</strong><br>Age: '+ageText(c.age)+'<br>Location: '+locText(c)+'<br>Position: '+c.pos+'<br>Observation: '+observe(c)+'<br>Health: '+c.health+'<br>Allergy: '+c.allergy+'<br>Illness stage: '+(c.illStage||0)+'<br>Enrolled: '+(c.enrolled?'yes':'no')+'<br><button onclick="openChild(\\''+c.id+'\\')">Open '+c.name+'</button></div>').join('');html+=game.people.map(p=>'<div class="card"><strong>'+p.name+'</strong><br>Role: '+p.role+'<br>Health: '+p.health+'<br>Location: '+AREAS[p.area]?.name+'</div>').join('');html+=game.pets.map(p=>'<div class="card"><strong>'+p.name+'</strong><br>Pet: '+p.kind+'<br>Location: '+AREAS[p.loc]?.name+'</div>').join('');$('familyList').innerHTML=html;show('family')}
+function observe(c){if(c.health==='under treatment')return 'under treatment';if(c.health==='recovering')return 'recovering';if(c.need==='hungry')return c.age<36?'crying':'seems hungry';if(c.need==='thirsty')return 'needs a drink';if(c.need==='tired')return 'looks tired';if(c.need==='ill')return illnessText(c);if(c.need==='dirty')return 'needs changing';if(c.activity==='sleeping')return 'asleep';if(c.activity==='playing')return 'playing';if(c.activity==='babbling')return 'babbling happily';return 'settled'}
+function illnessText(c){let stage=c.illStage||1;if(c.ill==='cold')return stage===1?'occasional cough and sniffles':stage===2?'coughing and sniffly':'coughing often, tired, reduced appetite';if(c.ill==='chest')return stage===1?'bad cough':stage===2?'bad cough and tired':'persistent cough and breathing sounds';if(c.ill==='stomach')return stage===1?'tummy seems upset':stage===2?'tummy upset and burping':'tummy bug with vomiting risk';if(c.ill==='allergy')return 'allergic reaction';return 'seems poorly'}
+function openChild(id){childId=id;let c=child(id);$('childTitle').textContent=c.name;$('childInfo').innerHTML='Age: '+ageText(c.age)+'<br>Location: '+locText(c)+'<br>Position: '+c.pos+'<br>Observation: '+observe(c)+'<br>Health: '+c.health+'<br>Allergy: '+c.allergy+'<br>Illness stage: '+(c.illStage||0)+'<br>Enrolled: '+(c.enrolled?'yes':'no');show('childScreen')}
+function carrySelected(){let c=child(childId);if(!c)return;if(c.age>=60){childSay(c,'I can walk.');return}game.carrying={type:'child',id:c.id,label:c.name};c.loc='carried';c.pos='carried';showGame()}
+function checkChild(){let c=child(childId);if(!c)return;if(c.need==='ill'){if(c.ill==='stomach'){one('stomach');if(c.illStage>1)setTimeout(()=>one('burp'),1200);if(c.illStage>2)setTimeout(()=>one('vomit'),2500)}else if(c.ill==='sneeze')one('sneeze');else if(c.ill==='allergy'){one('cough');setTimeout(()=>one('heart'),1000)}else one('cough')}else if(c.need==='hungry')one(c.age<36?'cry':'stomach');else if(c.need==='tired')one('snore');else if(c.age<18)one(c.activity==='sleeping'?'snore':'baby');else childSay(c,'I am okay.')}
+function enrollSelected(){let c=child(childId);if(!c)return;if(c.age<24){notice(c.name+' is too young for nursery.');return}c.enrolled=true;notice(c.name+' is enrolled.')}
+function talkToChild(){let c=child(childId);convo={type:'child',id:c.id,name:c.name,role:'child',history:[],log:[c.name+': '+line(c)]};renderConvo()}
+function line(c){if(c.age<18)return 'Babble!';if(c.need==='hungry')return 'Can I have food?';if(c.need==='ill')return "I don't feel good.";if(c.health==='under treatment')return 'I still feel poorly but a bit safer.';return rand(['Hi.','Can we do something?','I was playing.'])}
+function startConversation(name,role='adult'){convo={type:'adult',name,role,history:[],log:[name+': '+npcGreeting(role,name)]};renderConvo()}
+function npcGreeting(role,name){if(role==='teacher')return 'Hello. I can help with enrollment, illness, attendance, homework or progress.';if(role==='doctor')return 'Hello. Tell me the symptoms and I will assess and treat them.';if(role==='nurse')return 'Hello. I can do triage, observations and urgent care.';if(role==='nursery')return 'Hello. I can talk about meals, naps, play, illness or enrollment.';if(role==='adoption')return 'Welcome to the adoption centre. You can meet children here.';if(role==='shelter')return 'Welcome to the animal shelter. You can meet dogs and cats.';if(role==='grandma')return 'Hello dear. I can visit, babysit, come shopping, or stay still while you find me.';if(role==='police')return 'Police service. Tell me what happened and whether anyone is in danger.';if(role==='fire')return 'Fire service. Tell me if there is fire, smoke, danger or someone trapped.';return 'Hello.'}
+function renderConvo(){$('conversationTitle').textContent=convo.name||'Conversation';$('conversationLog').innerHTML=convo.log.join('<br>');$('replyBox').value='';show('conversation')}
+function sendReply(){let txt=$('replyBox').value.trim();if(!txt)return;convo.log.push('You: '+txt);convo.history.push(txt.toLowerCase());speak(txt);applyConversationEffects(convo,txt.toLowerCase());let rep=replyFor(convo,txt.toLowerCase());convo.log.push((convo.name||'Person')+': '+rep);speak(rep);renderConvo()}
+function replyFor(c,l){
+ if(['grandma','doctor','nurse','teacher','nursery','adoption','adoptionChild','police','fire'].includes(c.role)){let dynamic=generatedReply(c.role,l); if(dynamic) return dynamic;}
+ if(c.role==='grandma'){
+   let g=game.people.find(p=>p.id==='grandma');
+   if(l.includes('where')){g.locked=true;return 'I am in '+(AREAS[g.area]?.name||'the house')+'. I will stay there while you come to me.'}
+   if(l.includes('shopping')||l.includes('come with')){g.area='frontGarden';g.x=25;g.y=55;g.locked=true;remember('Grandma agreed to come out with you.');return 'Yes dear, I will come with you. I am waiting near the front door.'}
+   if(l.includes('babysit')||l.includes('watch')){game.babysitter='Grandma';g.locked=true;g.area=area;return 'Of course dear. I will stay here and watch the children. I will phone if I am worried.'}
+   if(l.includes('ill')||l.includes('sick'))return 'Tell me who is ill and what symptoms they have. I can help you decide whether to call the doctor.'
+   return 'I understand. I am listening properly.'
+ }
+ if(c.role==='doctor'||c.role==='nurse'){
+   let kid=child(childId)||game.children.find(x=>x.need==='ill')||game.children[0];
+   let medicalDetail=l.includes('4')||l.includes('four')||l.includes('days')||l.includes('worse')||l.includes('temperature')||l.includes('fever')||l.includes('not eating')||l.includes('not drinking')||l.includes('been going')||l.includes('long');
+   if(l.includes('me')&&game.player.need==='ill'){game.player.health='under treatment';game.player.illStage=Math.max(0,(game.player.illStage||1)-1);game.relationships.Doctor=Math.min(100,(game.relationships.Doctor||50)+2);return 'I have assessed you. Rest, fluids and monitoring. You are now under treatment.'}
+   if(l.includes('discharge')||l.includes('go home'))return kid?dischargeChild(kid):'I can discharge them when they are stable.'
+   if(l.includes('admit')||l.includes('hospital')||l.includes('breathing')||l.includes('very bad'))return kid?admitChild(kid):'This may need hospital admission.'
+   if(l.includes('vomit')||l.includes('sick')){if(kid){kid.ill='stomach';kid.need='ill';kid.illStage=Math.max(2,kid.illStage||1);return fullTreatment(kid,c.role==='nurse'?'Hospital':'Doctor')}return 'I will check fluids and temperature.'}
+   if(l.includes('allerg')){if(kid){kid.ill='allergy';kid.need='ill';kid.illStage=3;return fullTreatment(kid,c.role==='nurse'?'Hospital':'Doctor')}return 'For breathing problems or swelling, treat it as urgent.'}
+   if(medicalDetail)return kid?fullTreatment(kid,c.role==='nurse'?'Hospital':'Doctor'):'That sounds like it needs treatment.'
+   if(l.includes('cough'))return 'How long has the cough been going on, and are they eating and drinking?'
+   return 'I need duration, temperature, eating, drinking, sleep, and symptoms. Then I can treat them.'
+ }
+ if(c.role==='teacher'){
+   if(l.includes('enroll')){let kid=child(childId)||game.children[0];if(kid){kid.enrolled=true;return kid.name+' is now enrolled. I will contact you if there are concerns.'}}
+   if(l.includes('ill')||l.includes('sick')){game.reports.unshift('School safety note: staff will call if a child becomes unwell.');return 'If a child becomes unwell here, we will call you and keep them safe until you arrive.'}
+   return 'I can help with enrollment, attendance, illness, homework or progress.'
+ }
+ if(c.role==='nursery'){
+   if(l.includes('enroll'))return 'We can enroll toddlers and young children. I need their routine, allergies and comfort items.'
+   if(l.includes('nap')){game.reports.unshift('Nursery note: naps will be recorded.');return 'We record naps and will tell you if they sleep badly.'}
+   if(l.includes('food')||l.includes('eat')){game.reports.unshift('Nursery note: meals, drinks and allergies will be recorded.');return 'We record meals, drinks and allergies.'}
+   return 'I can talk about play, meals, naps, illness, allergies or enrollment.'
+ }
+ if(c.role==='adoption'){if(c.type==='adoptionMeet'||c.role==='adoptionChild'){return 'I am listening. You can adopt me from the adoption centre screen if you feel ready.'}if(l.includes('meet')||l.includes('child')){openAdoption();return 'I have brought you to the children waiting to meet families.'}if(l.includes('adopt')){openAdoption();return 'Choose the child you have met and feel ready to adopt.'}return 'You can meet babies, toddlers and older children here. Each child has their own age, personality, allergy and difference.'}
+ if(c.role==='shelter')return 'You can meet dogs and cats here and choose one to adopt.'
+ if(c.role==='adoptionChild'){if(l.includes('play'))return 'I would like to play with you.';if(l.includes('family')||l.includes('home'))return 'I want a safe family who listens to me.';if(l.includes('adopt')){openAdoption();return 'You can adopt me from the adoption screen if you are ready.'}return 'I am listening.'}
+ return 'I understand.'
+}
+function medicalTreat(kid,role){if(!kid)return 'I will make a treatment plan.';if(kid.need==='ill'||kid.ill){kid.health=role==='nurse'?'triaged':'under treatment';kid.consequence=0;if(kid.illStage<1)kid.illStage=1;if(kid.illStage>=3&&role==='nurse')return admitChild(kid);let text='';if(kid.ill==='cold')text=kid.name+' likely has a cold. Rest, fluids and monitoring. They are now under treatment.';else if(kid.ill==='chest')text=kid.name+' may have a chest infection. I am starting treatment and want a follow-up.';else if(kid.ill==='stomach')text=kid.name+' has a stomach bug. Watch fluids closely. They are under treatment.';else if(kid.ill==='allergy')text='This may be an allergic reaction. If breathing is affected, this is urgent.';else text=kid.name+' is under treatment now.';return text}return kid.name+' seems stable right now.'}
+function closeConversation(){convo=null;if(childId)openChild(childId);else showGame()}
+
+function openPhone(){$('phoneInfo').innerHTML='Messages:<br>'+(game.messages.slice(0,8).map(m=>'<div class="notice"><strong>'+m.from+':</strong> '+m.text+'</div>').join('')||'No messages.');show('phone')}
+function phoneContact(name){let role=name==='School'?'teacher':name==='Nursery'?'nursery':name==='Doctor'?'doctor':name==='Hospital'?'nurse':name==='Police'?'police':name==='Fire Service'?'fire':name==='Grandma'?'grandma':name==='Adoption Centre'?'adoption':'adult';convo={type:'phone',name,role,history:[],log:[name+': '+npcGreeting(role,name)]};one('phone');renderConvo()}
+function addMessage(from,text){game.messages.unshift({from,text,day:game.day,time:game.time});game.messages=game.messages.slice(0,50)}
+function openAdoption(){renderAdoption();show('adoptionScreen')}
+function generateAdoptionChildren(showMsg=true){if(!game)return;let names=['Ava','Sophie','Lily','Emily','Mia','Ella','Noah','Leo','Oliver','Amelia','Grace','Ruby'];game.adoption=[];for(let i=0;i<6;i++){game.adoption.push({name:rand(names),age:rand([0,7,18,30,60,84,120,156]),diff:rand(['none','none','autistic','ADHD','blind','deaf','limited mobility']),allergy:rand(['none','none','peanut','pollen','dairy']),personality:rand(['gentle','curious','playful','quiet','chatty'])})}if(showMsg){notice('New children are waiting at the adoption centre.');renderAdoption()}}
+function renderAdoption(){let html=game.adoption.map((c,i)=>'<div class="card"><strong>'+c.name+'</strong><br>Age: '+ageText(c.age)+'<br>Difference: '+c.diff+'<br>Allergy: '+c.allergy+'<br>Personality: '+c.personality+'<br><button onclick="adoptGenerated('+i+')">Adopt '+c.name+'</button></div>').join('');$('adoptionList').innerHTML=html||'No children generated.'}
+function adoptGenerated(i){let c=game.adoption[i];if(!c)return;addChild(c.name,c.age);let kid=game.children[game.children.length-1];kid.diff=c.diff;kid.allergy=c.allergy;notice(c.name+' joins your family.');game.adoption.splice(i,1);renderAdoption()}
+function adoptPet(kind){addPet(kind,true);advanceAction()}
+function interactPet(p){if(!p)return;if(game.carrying){useOnPet(game.carrying,p);return}one(p.kind==='cat'?'cat':'dog');notice(p.name+' is here.')}
+function useOnPet(it,p){if(['snack','meal','drink'].includes(it.type)){one(p.kind==='cat'?'purr':'dog');p.happy=100;game.carrying=null;notice(p.name+' is happy.')}else notice(p.name+' ignores '+it.label+'.')}
+function callFamily(){let here=targets().filter(t=>t.kind==='child'||t.kind==='person'||t.kind==='pet').map(t=>t.name);if(here.length){speak(here.join(', ')+' are here.');notice(here.join(', ')+' are here.')}else{notice('No family member answers nearby.');speak('No family member answers nearby.')}}
+function openBag(){$('bagInfo').innerHTML='Money: '+game.money+' coins<br>Bag: '+(game.bag.length?game.bag.join(', '):'empty')+'<br>Trolley: '+(game.trolleyItems.length?game.trolleyItems.join(', '):'empty')+'<br>Car boot: '+(game.car.boot.length?game.car.boot.join(', '):'empty')+'<br>Carrying: '+(game.carrying?game.carrying.label:'nothing');show('bag')}
+function whereAmI(){speak(cur().name+(current?'. Touching '+current.name:''))}
+function toggleSpeech(){speechOn=!speechOn;alert('Voice '+(speechOn?'on':'off'))}
+function toggleSounds(){soundsOn=!soundsOn;if(!soundsOn)stopAll();alert('Sounds '+(soundsOn?'on':'off'))}
+function notice(t){if(!game)return;if($('status')&&$('game').classList.contains('active'))$('status').textContent=statusText();console.log(t)}
+function child(id){return game.children.find(c=>c.id===id)}
+function pet(id){return game.pets.find(p=>p.id===id)}
+function childSay(c,t){notice(c.name+': '+t);speak(t)}
+function locText(c){return c.loc==='carried'?'carried':c.loc==='car'?'car':AREAS[c.loc]?.name||c.loc}
+function ageText(m){if(m<12)return m+' months';let y=Math.floor(m/12),mo=m%12;return y+' year'+(y===1?'':'s')+(mo?', '+mo+' months':'')}
+window.addEventListener('load',()=>{$('jsStatus').textContent='JavaScript loaded.'})
+window.onerror=(m,s,l)=>alert('Game error: '+m+' line '+l)
+window.addEventListener('beforeunload',()=>saveGame(false))
+</script>
+</body>
+</html>
