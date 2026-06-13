@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Family Baby Care Ultimate V13.2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<style>
+body{font-family:Arial,sans-serif;background:#f7f2ff;color:#1f1235;margin:0;padding:14px;line-height:1.45}
+button,input,select,textarea{font-size:18px;padding:12px;margin:6px 0;width:100%;box-sizing:border-box;border-radius:12px}
+button{background:#efe4ff;border:2px solid #8a63c7;color:#1f1235}
+input,select,textarea{border:2px solid #8a63c7}
+.screen{display:none}.active{display:block}
+.card{background:white;border:2px solid #d8c4ff;border-radius:14px;padding:12px;margin:10px 0}
+.notice{background:#fff8d6;border:2px solid #d7b900;border-radius:12px;padding:10px;margin:10px 0}
+.good{background:#e7ffe7;border:2px solid #43a047;border-radius:12px;padding:10px;margin:10px 0}
+.world{height:58vh;min-height:360px;border:3px solid #8a63c7;border-radius:18px;background:white;position:relative;touch-action:none;margin:10px 0;overflow:hidden}
+.obj{position:absolute;border:2px solid #d8c4ff;border-radius:12px;background:#f5eeff;padding:4px;font-size:13px;text-align:center;box-sizing:border-box}
+.childObj{background:#fff8d6;border-color:#d7b900}.petObj{background:#e7ffe7;border-color:#43a047}.personObj{background:#e9f3ff;border-color:#3587c9}.doorObj{background:#fff0e6;border-color:#d86b21}.dangerObj{background:#ffe6e6;border-color:#d33}
+.target{outline:4px solid #43a047}.big{font-size:22px;font-weight:bold}.small{font-size:14px}.driving{background:#111;color:white;border-color:#555}
+</style>
+</head>
+<body>
+<h1>Family Baby Care Ultimate V13.2</h1>
+
+<div id="home" class="screen active">
+ <div class="good"><strong>Version:</strong> Ultimate V13.2. <span id="jsStatus">JavaScript not loaded yet.</span></div>
+ <div class="card">One-file audio-first life simulator. V13.2 fixes direct object actions: pressing or double-tapping a door, fridge, child, car, sink or object now performs the action immediately instead of only showing the action text.</div>
+ <button onclick="alert('Buttons work. JavaScript is responding.')">Test Buttons</button>
+ <button onclick="show('setup')">New Family</button>
+ <button onclick="loadGame()">Continue Family</button>
+ <button onclick="show('settings')">Settings</button>
+ <button onclick="show('help')">How To Play</button>
+</div>
+
+<div id="setup" class="screen">
+ <h2>New Family</h2>
+ <input id="playerName" placeholder="Your character name">
+ <input id="playerAge" type="number" value="24" placeholder="Your character age">
+ <input id="familyName" placeholder="Family name">
+ <label>Starting family</label>
+ <select id="startType">
+  <option value="none">No children yet</option>
+  <option value="baby">One baby</option>
+  <option value="child">One child</option>
+  <option value="multiple">Baby and child</option>
+  <option value="pregnant">Pregnant</option>
+ </select>
+ <label>Starting money difficulty</label>
+ <select id="moneyMode">
+  <option value="normal">Normal</option>
+  <option value="hard">Hard</option>
+  <option value="easy">Easy</option>
+ </select>
+ <button onclick="createGame()">Create Family</button>
+ <button onclick="show('home')">Back</button>
+</div>
+
+<div id="game" class="screen">
+ <h2 id="placeTitle"></h2>
+ <div id="status" class="notice"></div>
+ <div id="world" class="world" aria-label="Touch exploration world"></div>
+ <div id="focus" class="card"></div>
+ <div id="carryCard" class="card"></div>
+ <button onclick="listen()">Listen</button>
+ <button onclick="whereAmI()">Where Am I?</button>
+ <button onclick="openQuickTravel()">Quick Travel / Unstick</button>
+ <button onclick="returnHome()">Return Home</button>
+ <button onclick="callFamily()">Call Out</button>
+ <button onclick="openFamily()">Family</button>
+ <button onclick="openPhone()">Phone / Messages</button>
+ <button onclick="openAdoption()">Adoption List</button>
+ <button onclick="openReports()">Reports</button>
+ <button onclick="openMemories()">Memories</button>
+ <button onclick="openMoney()">Money / Housing / Work</button>
+ <button onclick="openRelationships()">Relationships</button>
+ <button onclick="openSummary()">World Summary</button>
+ <button onclick="dailyRoutine()">Do Family Routine</button>
+ <button onclick="startSchoolDay()">Start School/Nursery Day</button>
+ <button onclick="pickupAll()">Pick Up Children</button>
+ <button onclick="saveGame()">Save</button>
+</div>
+
+
+<div id="quickTravel" class="screen">
+ <h2>Quick Travel / Unstick</h2>
+ <div class="card">Use this if touch navigation gets stuck.</div>
+ <button onclick="goAreaSafe('living')">Living Room</button>
+ <button onclick="goAreaSafe('kitchen')">Kitchen</button>
+ <button onclick="goAreaSafe('hall')">Hallway</button>
+ <button onclick="goAreaSafe('landing')">Upstairs Landing</button>
+ <button onclick="goAreaSafe('bedroom')">Bedroom</button>
+ <button onclick="goAreaSafe('nursery')">Nursery Bedroom</button>
+ <button onclick="goAreaSafe('bathroom')">Bathroom</button>
+ <button onclick="goAreaSafe('garden')">Garden</button>
+ <button onclick="goAreaSafe('frontGarden')">Front Garden</button>
+ <button onclick="goAreaSafe('street')">Street</button>
+ <button onclick="goAreaSafe('shop')">Supermarket</button>
+ <button onclick="goAreaSafe('school')">School</button>
+ <button onclick="goAreaSafe('nurseryPlace')">Day Nursery</button>
+ <button onclick="goAreaSafe('doctor')">Doctor Surgery</button>
+ <button onclick="goAreaSafe('hospital')">Hospital</button>
+ <button onclick="goAreaSafe('adoption')">Adoption Centre</button>
+ <button onclick="goAreaSafe('shelter')">Animal Shelter</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="containerScreen" class="screen">
+ <h2 id="containerTitle"></h2>
+ <div id="containerInfo" class="notice"></div>
+ <div id="containerWorld" class="world"></div>
+ <div id="containerFocus" class="card"></div>
+ <button onclick="takeContainerItem()">Take / Add Selected Item</button>
+ <button onclick="closeContainer()">Close</button>
+</div>
+
+<div id="family" class="screen"><h2>Family</h2><div id="familyList"></div><button onclick="showGame()">Back</button></div>
+
+<div id="phone" class="screen">
+ <h2>Phone and Messages</h2>
+ <div id="phoneInfo" class="card"></div>
+ <button onclick="openLatestMessage()">Open Latest Message / Reply</button>
+ <button onclick="openPendingCall()">Open Incoming Call</button>
+ <button onclick="phoneContact('Grandma')">Call/Text Grandma</button>
+ <button onclick="phoneContact('Partner')">Call/Text Partner</button>
+ <button onclick="phoneContact('School')">Call/Text School</button>
+ <button onclick="phoneContact('Nursery')">Call/Text Nursery</button>
+ <button onclick="phoneContact('Doctor')">Call/Text Doctor</button>
+ <button onclick="phoneContact('Hospital')">Call/Text Hospital</button>
+ <button onclick="phoneContact('Police')">Call Police</button>
+ <button onclick="phoneContact('Fire Service')">Call Fire Service</button>
+ <button onclick="phoneContact('Adoption Centre')">Call/Text Adoption Centre</button>
+ <button onclick="phoneContact('Vet')">Call/Text Vet</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="conversation" class="screen">
+ <h2 id="conversationTitle">Conversation</h2>
+ <div id="conversationLog" class="card"></div>
+ <textarea id="replyBox" rows="4" placeholder="Type what your character says"></textarea>
+ <button onclick="sendReply()">Say / Send</button>
+ <button onclick="closeConversation()">Back</button>
+</div>
+
+<div id="childScreen" class="screen">
+ <h2 id="childTitle"></h2>
+ <div id="childInfo" class="card"></div>
+ <button onclick="talkToChild()">Talk</button>
+ <button onclick="checkSelectedChild()">Check</button>
+ <button onclick="carrySelected()">Pick Up</button>
+ <button onclick="enrollSelected()">Enroll In School/Nursery</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="adoptionScreen" class="screen">
+ <h2>Adoption List</h2>
+ <div class="notice">Choose a child, read their details, then press Adopt. You can also explore the adoption centre by touch.</div>
+ <div id="adoptionList" class="card"></div>
+ <button onclick="generateAdoptionChildren(true)">Refresh Children</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="carScreen" class="screen">
+ <h2>Car</h2>
+ <div id="carInfo" class="card"></div>
+ <button onclick="putSelectedChildInCar()">Put Selected Child In Car Seat</button>
+ <button onclick="takeChildOutOfCar()">Take Child Out Of Car</button>
+ <button onclick="takeAllChildrenOut()">Take All Children Out</button>
+ <button onclick="grandmaInCar()">Ask Grandma Into Car</button>
+ <button onclick="partnerInCar()">Ask Partner Into Car</button>
+ <button onclick="takeShoppingFromBoot()">Take Shopping From Boot</button>
+ <button onclick="startDriving()">Start Driving</button>
+ <button onclick="showGame()">Back</button>
+</div>
+
+<div id="drive" class="screen">
+ <h2>Driving</h2>
+ <div class="card driving"><p class="big" id="drivePrompt">Car ready.</p><p id="driveStatus"></p></div>
+ <button onclick="requestMotion()">Enable Tilt Driving</button>
+ <button onclick="driveLeft()">Turn Left</button>
+ <button onclick="driveStraight()">Continue Straight</button>
+ <button onclick="driveRight()">Turn Right</button>
+ <button onclick="stopDriving()">Stop Car / Get Out</button>
+</div>
+
+
+<div id="callScreen" class="screen">
+ <h2 id="callTitle">Incoming Call</h2>
+ <div id="callInfo" class="card"></div>
+ <button onclick="answerCall()">Answer Call</button>
+ <button onclick="declineCall()">Decline Call</button>
+ <button onclick="callBackLater()">Call Back Later</button>
+</div>
+
+<div id="messageReply" class="screen">
+ <h2 id="messageTitle">Message</h2>
+ <div id="messageBody" class="card"></div>
+ <textarea id="messageReplyBox" rows="4" placeholder="Type your reply"></textarea>
+ <button onclick="sendMessageReply()">Reply</button>
+ <button onclick="openPhone()">Back To Phone</button>
+</div>
+
+<div id="reports" class="screen"><h2>Reports</h2><div id="reportsInfo" class="card"></div><button onclick="showGame()">Back</button></div>
+<div id="memories" class="screen"><h2>Memories</h2><div id="memoriesInfo" class="card"></div><button onclick="showGame()">Back</button></div>
+<div id="money" class="screen"><h2>Money, Housing and Work</h2><div id="moneyInfo" class="card"></div><button onclick="getJob()">Get / Change Job</button><button onclick="buyFoodAndSupplies()">Buy Weekly Supplies</button><button onclick="moveHouse()">Move House</button><button onclick="buyVehicle()">Buy Larger Vehicle</button><button onclick="showGame()">Back</button></div>
+<div id="relationships" class="screen"><h2>Relationships</h2><div id="relationshipsInfo" class="card"></div><button onclick="meetPartner()">Meet Someone</button><button onclick="progressPartner()">Progress Partner Relationship</button><button onclick="breakUp()">Break Up / Separate</button><button onclick="showGame()">Back</button></div>
+<div id="summary" class="screen"><h2>World Summary</h2><div id="summaryInfo" class="card"></div><button onclick="showGame()">Back</button></div>
+
+<div id="settings" class="screen">
+ <h2>Settings</h2>
+ <button onclick="toggleSpeech()">Toggle Speech</button>
+ <button onclick="toggleSounds()">Toggle Sounds</button>
+ <button onclick="cycleVolume()">Change Sound Volume</button>
+ <button onclick="repeatLast()">Repeat Last Message</button>
+ <button onclick="resetGame()">Delete Save</button>
+ <button onclick="show('home')">Back</button>
+</div>
+
+<div id="help" class="screen">
+ <h2>How To Play</h2>
+ <div class="card">
+  <p>Touch exploration: drag around the world area. The game speaks what you touch. Press or double tap an object to use it immediately. Doors go through, fridges open, children interact, and cars open without needing an Activate button.</p>
+  <p>Sounds unlock after your first tap. If iPhone blocks a sound, the game tries again after interaction.</p>
+  <p>Children move by age. Newborns stay put, babies crawl, toddlers wander nearby, older children can move around and attend school.</p>
+  <p>The world keeps progressing while closed. When you continue, it calculates missed time, illness, pregnancy, school, nursery, hospital and money events.</p>
+  <p>Use the phone, but people can also call and message you randomly.</p>
+ <p>Illnesses use causes and sound sequences. Older children and adults can approach you and say what is wrong. Use medicine, thermometer, sick bowl, towels, wipes, water, bathroom care and rest. Your character can eat and drink too.</p>
+ </div>
+ <button onclick="show('home')">Back</button>
+</div>
+
+<script>
+const S={
+footsteps:'dragon-studio-footsteps-on-wood-397989.mp3',door:'soundreality-open-and-closed-door-reverb-206833.mp3',
+tv:'arunangshubanerjee-tv-playing-in-the-next-room-distant-and-indistinct-television-sound-360697.mp3',
+baby:'freesound_community-baby-noises-60911.mp3',cry:'bahyudinnor-heartbreaking-baby-crying-sound-effect-realistic-amp-high-quality-311648.mp3',
+snore:'freesound_community-baby-snoring-snore-sleeping-breathing-79536.mp3',rattle:'freesound_community-rattle-46377.mp3',
+cough:'u_xg7ssi08yr-child-coughs-355471.mp3',sneeze:'freesound_community-sneeze-female-x3-jgray-89803.mp3',
+stomach:'superv007-cartoon-stomach-growling-sfx-357010.mp3',vomit:'dragon-studio-vomiting-sound-effect-382720.mp3',burp:'freesound_community-burp-104984.mp3',
+fridgeOpen:'freesound_community-fridge-open-80053.mp3',fridgeClose:'freesound_community-fridge-close-80052.mp3',cupboard:'freesound_community-opening-cupboard-37521.mp3',
+paper:'freesound_community-paper-sound-39259.mp3',beep:'cartoon-music-game-sfx-cash-register-scanner-single-beep-494483.mp3',
+trolley:'freesound_community-pushing-grocery-cart-63821.mp3',supermarket:'alex_jauk-supermarket-ambience-sounds-518582.mp3',
+classroom:'freesound_community-classroom-32941.mp3',playground:'geralt-the-big-break-at-half-past-nine-220150.mp3',birds:'11325622-bird-sounds-241394.mp3',
+mobile:'freesound_community-baby-music-mobile-23893.mp3',dog:'dragon-studio-dog-bark-sound-effect-322989.mp3',cat:'dragon-studio-cute-cat-meow-472372.mp3',
+purr:'dragon-studio-purring-cat-401727.mp3',carDoorOpen:'dragon-studio-open-car-door-372469.mp3',carDoorClose:'kamranbashirb-car-door-shut-297266.mp3',
+carStart:'pwlpl-car-engine-start-sound-effect-521106.mp3',carRun:'manshaofficial-diesel-car-engine-sound-111994.mp3',carStop:'spinopel-turn-off-the-car-engine-345716.mp3',
+phone:'soundreality-phone-ringtone-sound-294438.mp3',message:'universfield-happy-message-ping-351298.mp3',cash:'dragon-studio-cash-register-kaching-376867.mp3',
+bottle:'freesound_community-sucking-on-a-popsicle-75782.mp3',drink:'freesound_community-drinking-water-from-a-glass-44654.mp3',eat:'relaxsoundsde-sound-eating-free-to-use-429258.mp3',
+crockery:'freesound_community-crockery-and-cutlery-19823.mp3',pill:'photos-pill-bottle-shake-415796.mp3',heart:'soundreality-heart-beat-137135.mp3',
+bath:'alex_jauk-bathtub-filling-sound-195144.mp3',shower:'jadeallencook-running-shower-water-sound-in-bathroom-with-steady-stream-339233 2.mp3',
+toothbrush:'alex_jauk-tooth-brushing-sound-195619.mp3',hairbrush:'54570407-hair-brushing-sound-481687.mp3',hairdryer:'freesound_community-sound-of-a-hairdryer-68897.mp3',
+clothes:'freesound_community-clothes-rustling-2-6286.mp3',wipes:'freesound_community-opening-cheese-slice-packet-75858.mp3',toilet:'vibehorn-toilet-flush-fx-3-424983.mp3',
+fry:'shut_up_ghost-frying-food-cooking-kitchen-free-sound-effect-382865.mp3',washer:'freesound_community-washing-machine-working-22260.mp3',
+microwave:'alex_jauk-microwaving-207596.mp3',microwaveDoor:'tommylynn-microwave-opening-and-closing-369266.mp3',
+ambulance:'u_xg7ssi08yr-ambulance-siren-363656.mp3',rain:'dragon-studio-copyright-free-rain-sounds-331497.mp3'
+};
+
+function $(id){return document.getElementById(id)}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function obj(name,type,x,y,w,h,data={}){return{name,type,x,y,w,h,data}}
+function itemObj(n,x,y){return obj(n,'carry',x,y,26,15,{item:n})}
+
+const AREAS={
+living:{name:'Living Room',amb:'tv',objects:[obj('kitchen door','door',4,8,30,15,{to:'kitchen'}),obj('hallway door','door',36,8,30,15,{to:'hall'}),obj('garden door','door',68,8,27,15,{to:'garden'}),obj('sofa','seat',8,58,30,20),obj('television','sound',67,38,25,15,{sound:'tv'}),obj('toy box','container',55,62,32,18,{contents:['rattle','toy','squeaky toy']}),obj('Grandma','person',15,32,24,14,{role:'grandma'})]},
+kitchen:{name:'Kitchen',objects:[obj('living room door','door',4,8,30,15,{to:'living'}),obj('hallway door','door',36,8,30,15,{to:'hall'}),obj('fridge','container',5,30,25,22,{contents:['bottle','milk','juice','snack','meal ingredients']}),obj('cupboard','container',36,30,25,22,{contents:['plate','bowl','cup','wipes']}),obj('cooker','sound',70,30,24,22,{sound:'fry'}),obj('microwave','sound',8,65,25,17,{sound:'microwave'}),obj('sink','water',38,65,25,18),obj('highchair','highchair',70,70,22,16)]},
+hall:{name:'Hallway',objects:[obj('living room door','door',4,10,28,15,{to:'living'}),obj('kitchen door','door',35,10,28,15,{to:'kitchen'}),obj('stairs','door',68,10,25,15,{to:'landing'}),obj('front door','door',35,55,30,18,{to:'frontGarden'})]},
+landing:{name:'Upstairs Landing',objects:[obj('stairs down','door',5,10,30,15,{to:'hall'}),obj('bedroom door','door',37,10,28,15,{to:'bedroom'}),obj('bathroom door','door',68,10,28,15,{to:'bathroom'}),obj('nursery bedroom door','door',37,55,28,15,{to:'nursery'})]},
+bedroom:{name:'Bedroom',objects:[obj('landing door','door',4,8,30,15,{to:'landing'}),obj('bed','sleep',5,40,32,22),obj('wardrobe','container',55,35,32,20,{contents:['clothes','pyjamas','school uniform']}),obj('desk','surface',12,70,30,15),obj('school bag','container',55,70,32,15,{contents:['paper','pens','books','lunch box']})]},
+nursery:{name:'Nursery Bedroom',amb:'mobile',objects:[obj('landing door','door',4,8,30,15,{to:'landing'}),obj('cot','sleep',5,35,30,24),obj('changing table','change',42,35,32,20),itemObj('nappies',5,70),itemObj('wipes',32,70),itemObj('baby cream',58,70),obj('music mobile','sound',40,15,30,14,{sound:'mobile'}),itemObj('rattle',76,70)]},
+bathroom:{name:'Bathroom',objects:[obj('landing door','door',4,8,30,15,{to:'landing'}),obj('bath','bath',5,35,30,22),obj('shower','sound',42,35,26,22,{sound:'shower'}),obj('sink','water',72,35,22,16),obj('toilet','sound',72,65,22,17,{sound:'toilet'}),itemObj('toothbrush',5,70),itemObj('hair brush',34,70),itemObj('hair dryer',62,70),obj('medicine cupboard','container',35,15,30,16,{contents:['medicine','thermometer']})]},
+garden:{name:'Garden',amb:'birds',objects:[obj('living room door','door',5,8,30,15,{to:'living'}),obj('front path','door',38,8,28,15,{to:'frontGarden'}),obj('swing','play',8,45,28,22),obj('slide','play',60,45,28,22),obj('grass','play',8,75,80,18)]},
+frontGarden:{name:'Front Garden',objects:[obj('front door','door',8,10,28,16,{to:'hall'}),obj('street gate','door',45,10,28,16,{to:'street'}),obj('car','car',38,60,35,20)]},
+street:{name:'Street',objects:[obj('home gate','door',6,8,26,14,{to:'frontGarden'}),obj('supermarket path','door',38,8,28,14,{to:'shop'}),obj('school path','door',70,8,24,14,{to:'school'}),obj('nursery path','door',70,26,24,14,{to:'nurseryPlace'}),obj('doctor path','door',6,42,28,14,{to:'doctor'}),obj('hospital road','door',38,42,28,14,{to:'hospital'}),obj('call ambulance','ambulance',38,58,28,12),obj('park path','door',70,52,24,14,{to:'park'}),obj('adoption centre','door',6,75,36,14,{to:'adoption'}),obj('animal shelter','door',52,75,36,14,{to:'shelter'}),obj('cafe','door',6,58,24,12,{to:'cafe'}),obj('job centre','door',70,72,24,12,{to:'jobCentre'})]},
+shop:{name:'Supermarket',amb:'supermarket',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('trolley bay','trolley',5,35,30,18),obj('trolley child seat','trolleySeat',38,35,34,16),obj('basket','carry',75,35,20,16,{item:'basket'}),obj('baby aisle','container',48,55,38,18,{contents:['nappies','wipes','baby cream','bottles']}),obj('food aisle','container',8,60,34,18,{contents:['snack','fruit','meal ingredients','drink','biscuits']}),obj('checkout','checkout',55,80,30,16)]},
+school:{name:'School',amb:'classroom',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('teacher','person',35,25,30,18,{role:'teacher'}),obj('school bell','sound',8,30,25,18,{sound:'beep'}),obj('classroom','schoolPlace',55,58,30,18),obj('desk','surface',8,58,26,18)]},
+nurseryPlace:{name:'Day Nursery',amb:'mobile',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('nursery staff','person',35,25,32,18,{role:'nursery'}),obj('nap room','schoolPlace',8,55,30,16),obj('play room','schoolPlace',45,55,35,16),obj('meal room','schoolPlace',45,78,35,14)]},
+doctor:{name:'Doctor Surgery',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('doctor','person',8,25,30,18,{role:'doctor'}),obj('receptionist','person',52,25,34,16,{role:'receptionist'}),itemObj('thermometer',45,55),itemObj('medicine',8,65),obj('waiting chairs','seat',48,75,30,16)]},
+hospital:{name:'Hospital',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('A and E nurse','person',8,20,30,16,{role:'nurse'}),obj('paediatric doctor','person',42,20,36,16,{role:'doctor'}),obj('maternity ward','ward',8,50,30,16),obj('paediatric ward','ward',42,50,34,16),itemObj('thermometer',8,72),obj('monitor','sound',42,72,30,16,{sound:'heart'}),obj('ambulance bay','sound',70,88,25,10,{sound:'ambulance'})]},
+park:{name:'Park',amb:'playground',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('birds','sound',55,10,28,18,{sound:'birds'}),obj('swing','play',8,55,28,18),obj('slide','play',58,55,28,18),obj('dog','petWild',37,38,25,16)]},
+adoption:{name:'Adoption Centre',amb:'baby',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('receptionist','person',35,18,32,16,{role:'adoption'}),obj('adoption list desk','adoptionList',35,38,34,15),obj('baby room','adoptionList',8,62,30,16),obj('children room','adoptionList',45,62,35,16),obj('meeting room','seat',45,82,35,14)]},
+shelter:{name:'Animal Shelter',amb:'dog',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('shelter worker','person',35,20,32,18,{role:'shelter'}),obj('dog kennels','petAdopt',8,55,30,16,{kind:'dog'}),obj('cat room','petAdopt',55,55,30,16,{kind:'cat'})]},
+cafe:{name:'Cafe',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('friend','person',35,25,30,18,{role:'friend'}),obj('table','seat',20,60,30,18),obj('counter','container',58,60,30,18,{contents:['sandwich','drink','snack']})]},
+jobCentre:{name:'Job Centre',objects:[obj('street exit','door',5,8,30,15,{to:'street'}),obj('job adviser','person',35,25,34,18,{role:'job'}),obj('notice board','jobBoard',25,60,45,18)]}
+};
+
+let game=null,area='living',current=null,container=null,containerCurrent=null,childId=null,convo=null,lastSpoken='',speechOn=true,soundsOn=true,soundVolume=.85,loops={},audioCache={},audioUnlocked=false,lastTouch=0,lastTap=0,lastName='',driveOptions=[],motionReady=false,lastTilt=0;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function speak(t){lastSpoken=t;if(!speechOn)return;try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=.95;u.pitch=1.05;let v=speechSynthesis.getVoices();if(v.length)u.voice=v.find(x=>/samantha|tessa|serena|moira|kate|susan|female/i.test(x.name))||v[0];speechSynthesis.speak(u)}catch(e){}}
+function unlockAudio(){audioUnlocked=true;Object.keys(S).slice(0,3).forEach(k=>{try{let a=new Audio(S[k]);a.volume=0;a.play().then(()=>a.pause()).catch(()=>{})}catch(e){}})}
+function play(n,v=1,loop=false,key=''){if(!soundsOn||!S[n])return null;try{let a=new Audio(S[n]);a.volume=clamp(v*soundVolume,0,1);a.loop=loop;let p=a.play();if(p)p.catch(()=>setTimeout(()=>{try{a.play().catch(()=>{})}catch(e){}},150));if(key)loops[key]=a;return a}catch(e){return null}}
+function one(n,v=1,stopAfter=0){let a=play(n,v,false);if(a&&stopAfter)setTimeout(()=>{try{a.pause();a.currentTime=0}catch(e){}},stopAfter);return a}
+function startLoop(k,n,v=1){if(loops[k])return;play(n,v,true,k)}
+function stopLoop(k){if(!loops[k])return;try{loops[k].pause();loops[k].currentTime=0}catch(e){}delete loops[k]}
+function stopAll(prefix=''){Object.keys(loops).filter(k=>!prefix||k.startsWith(prefix)).forEach(stopLoop)}
+function notice(t){console.log(t);speak(t);if($('status')&&game&&$('game').classList.contains('active'))$('status').textContent=statusText()}
+function remember(t){if(!game)return;game.memories.unshift(`Day ${game.day}, ${game.time}: ${t}`);game.memories=game.memories.slice(0,100)}
+function addMessage(from,text){game.messages.unshift({from,text,day:game.day,time:game.time,unread:true});game.messages=game.messages.slice(0,100);one('message')}
+function addReport(text){game.reports.unshift(`Day ${game.day}, ${game.time}: ${text}`);game.reports=game.reports.slice(0,100)}
+function worldLog(t){game.worldLog.unshift(`Day ${game.day}, ${game.time}: ${t}`);game.worldLog=game.worldLog.slice(0,120)}
+
+function createGame(){
+ let mode=$('moneyMode').value;
+ game={family:$('familyName').value.trim()||'Family',player:{name:$('playerName').value.trim()||'You',age:Number($('playerAge').value)||24,health:'well',need:'',ill:'',illStage:0,pregnant:false,pregStage:0,birthPlan:'undecided',hunger:75,thirst:75,tired:25,happy:65,stress:25,job:'none'},money:mode==='easy'?800:mode==='hard'?80:250,income:0,bills:40,home:'small house',vehicle:'small car',seats:2,day:1,time:'Morning',weather:'sunny',lastRealTime:Date.now(),carrying:null,bag:[],trolley:false,trolleyItems:[],car:{passengers:[],adults:[],boot:[]},children:[],pets:[],adults:[{id:'grandma',name:'Grandma',role:'grandma',age:68,health:'well',need:'',area:'living',x:15,y:32,locked:false,hunger:70,thirst:70,tired:30,happy:70,relationship:70}],partner:null,peopleMet:[],relationships:{Grandma:70,School:50,Nursery:50,Doctor:50,Hospital:50,Adoption:50,Partner:0},messages:[],reports:[],memories:[],worldLog:[],followUps:[],emergencies:[],adoption:[],items:{},babysitter:null,lastArea:'living'};
+ let st=$('startType').value;
+ if(st==='baby'||st==='multiple')addChild(rand(['Maiva','Sophia','Lily','Ava','Maya']),7);
+ if(st==='child'||st==='multiple')addChild(rand(['Mia','Grace','Amelia','Ruby','Ella']),84);
+ if(st==='pregnant'){game.player.pregnant=true;game.player.pregStage=1;addMessage('Midwife','Your first pregnancy appointment has been booked.')}
+ addPet('cat',false);
+ generateAdoptionChildren(false);
+ saveGame(false);
+ showGame();
+}
+
+function addChild(name,age){
+ game.children.push({id:'c'+Date.now()+Math.random(),name,age,loc:age<12?'nursery':age<48?'living':'bedroom',x:age<12?18:48,y:age<12?45:60,pos:age<12?'in cot':'floor',need:'',ill:'',illStage:0,allergy:rand(['none','none','none','peanut','pollen','dairy']),health:'well',hunger:75,thirst:75,tired:25,hygiene:80,happy:65,stress:10,activity:age<12?'sleeping':'settled',enrolled:false,admitted:false,schoolMood:'okay',friends:[],likes:[rand(['rattles','stories','music','park','dogs','drawing','cars'])],personality:rand(['gentle','curious','playful','quiet','chatty']),memories:[],relationship:70});
+}
+function addPet(kind='dog',announce=true){game.pets.push({id:'p'+Date.now()+Math.random(),name:kind==='cat'?'Cat':'Dog',kind,age:12,health:'well',need:'',loc:kind==='cat'?'living':'garden',x:kind==='cat'?60:38,y:kind==='cat'?55:48,hunger:70,happy:70});if(announce)notice('Adopted a '+kind+'.')}
+function saveGame(alertIt=true){if(!game)return;game.lastArea=area;game.lastRealTime=Date.now();localStorage.setItem('familyCareUltimateV132',JSON.stringify({game,area,speechOn,soundsOn,soundVolume}));if(alertIt)notice('Saved.')}
+function loadGame(){let raw=localStorage.getItem('familyCareUltimateV132');if(!raw){alert('No saved game yet.');return}let d=JSON.parse(raw);game=d.game;area=d.area||game.lastArea||'living';speechOn=d.speechOn??true;soundsOn=d.soundsOn??true;soundVolume=d.soundVolume??.85;migrate();applyOfflineProgression();showGame()}
+function migrate(){game.messages=game.messages||[];game.reports=game.reports||[];game.memories=game.memories||[];game.worldLog=game.worldLog||[];game.adults=game.adults||[{id:'grandma',name:'Grandma',role:'grandma',age:68,health:'well',area:'living',x:15,y:32,locked:false,relationship:70}];game.followUps=game.followUps||[];game.emergencies=game.emergencies||[];game.relationships=game.relationships||{};game.children=game.children||[];game.pets=game.pets||[];game.adoption=game.adoption||[]}
+function resetGame(){localStorage.removeItem('familyCareUltimateV132');location.reload()}
+
+
+function openQuickTravel(){show('quickTravel')}
+function returnHome(){goAreaSafe('living',true)}
+
+function statusText(){return `${game.player.name}, age ${game.player.age}. Health ${game.player.health}${game.player.need==='ill'?' '+game.player.ill+' stage '+game.player.illStage:''}. ${game.time}, day ${game.day}. Money ${game.money}. Home ${game.home}. Vehicle ${game.vehicle}. Carrying ${game.carrying?game.carrying.label:'nothing'}. ${game.player.pregnant?'Pregnant stage '+game.player.pregStage+'. ':''}${game.messages.some(m=>m.unread)?'Unread messages. ':''}`}
+function cur(){return AREAS[area]}
+function showGame(){show('game');render();speak(cur().name);updateSoundscape()}
+function render(){
+ if(!game||!cur())return;
+ $('placeTitle').textContent=cur().name;
+ $('status').textContent=statusText();
+ $('carryCard').innerHTML=game.carrying?'<strong>Carrying:</strong> '+game.carrying.label:'<strong>Carrying:</strong> nothing';
+ let w=$('world');w.innerHTML='';
+ let frag=document.createDocumentFragment();
+ targets().forEach(t=>{
+  let d=document.createElement('div');
+  d.className='obj '+(t.kind==='child'?'childObj':t.kind==='pet'?'petObj':t.kind==='person'?'personObj':t.kind==='door'?'doorObj':t.kind==='danger'?'dangerObj':'');
+  d.id='obj_'+t.id;
+  Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});
+  d.textContent=(typeof iconName==='function'?iconName(t):t.name);
+  d.setAttribute('role','button');
+  d.setAttribute('tabindex','0');
+  d.setAttribute('aria-label',t.name+', '+hint(t));
+  d.onclick=function(ev){ev.preventDefault();activateTargetById(t.id)};
+  d.ondblclick=function(ev){ev.preventDefault();activateTargetById(t.id)};
+  d.onkeydown=function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();activateTargetById(t.id)}};
+  frag.appendChild(d);
+ });
+ w.appendChild(frag);
+ setFocus(null);
+}
+function targets(){
+ let list=cur().objects.map((o,i)=>({...o,id:'o'+i,kind:o.type==='door'?'door':o.type==='ambulance'?'danger':'object'}));
+ list=list.concat(game.children.filter(c=>c.loc===area).map(c=>({id:c.id,kind:'child',type:'child',name:c.name,x:c.x,y:c.y,w:26,h:15,child:c.id})));
+ list=list.concat(game.pets.filter(p=>p.loc===area).map(p=>({id:p.id,kind:'pet',type:'pet',name:p.name,x:p.x,y:p.y,w:24,h:14,pet:p.id})));
+ list=list.concat(game.adults.filter(a=>a.area===area).map(a=>({id:a.id,kind:'person',type:a.role,name:a.name,x:a.x,y:a.y,w:26,h:15,adult:a.id,role:a.role})));
+ if(game.partner&&game.partner.area===area)list.push({id:'partner',kind:'person',type:'partner',name:game.partner.name,x:game.partner.x||45,y:game.partner.y||40,w:28,h:15,role:'partner'});
+ list=list.concat((game.items[area]||[]).map((it,i)=>({id:'d'+i,kind:'item',type:'dropped',name:it.label,x:it.x,y:it.y,w:24,h:13,idx:i})));
+ if(area==='adoption')list=list.concat(game.adoption.map((a,i)=>({id:'ad'+i,kind:'child',type:'adoptionChild',name:a.name,x:10+(i%3)*30,y:30+Math.floor(i/3)*20,w:25,h:15,adoptIndex:i})));
+ return list;
+}
+
+function activateTargetById(id){
+ let t=targets().find(x=>x.id===id);
+ if(!t){notice('That object is no longer there.');return}
+ setFocus(t);
+ setTimeout(()=>interact(),20);
+}
+function activateContainerTargetById(id){
+ let t=containerTargets().find(x=>x.id===id);
+ if(!t){notice('That item is no longer there.');return}
+ containerCurrent=t;
+ document.querySelectorAll('#containerWorld .obj').forEach(e=>e.classList.remove('target'));
+ let el=$('cobj_'+t.id);if(el)el.classList.add('target');
+ $('containerFocus').innerHTML='<strong>Touching:</strong> '+t.name;
+ setTimeout(()=>takeContainerItem(),20);
+}
+
+function setFocus(t){current=t;document.querySelectorAll('.obj').forEach(e=>e.classList.remove('target'));if(t){let el=$('obj_'+t.id);if(el)el.classList.add('target');$('focus').innerHTML=`<strong>Touching:</strong> ${t.name}<br><strong>Action:</strong> ${hint(t)}<br>Press or double tap this object to do it.`;}else $('focus').innerHTML='<strong>Touching:</strong> nothing'}
+function hint(t){if(t.kind==='door')return'go through';if(t.type==='adoptionChild')return'meet child';if(t.type==='adoptionList')return'open adoption list';if(t.kind==='child')return'pick up, talk, or use item';if(t.kind==='person')return'talk';if(t.kind==='pet')return'pet or care';if(t.type==='container')return'open';if(t.type==='car')return'open car';if(t.type==='trolley')return'push trolley';if(t.type==='trolleySeat')return'place child in trolley seat';if(t.type==='checkout')return'pay';if(t.type==='petAdopt')return'adopt pet';if(t.type==='jobBoard')return'look for work';if(t.type==='ambulance')return'call ambulance';return'use'}
+function objectAt(clientX,clientY,box='world'){let r=$(box).getBoundingClientRect();let x=(clientX-r.left)/r.width*100,y=(clientY-r.top)/r.height*100;let arr=box==='world'?targets():containerTargets();return arr.find(t=>x>=t.x&&x<=t.x+t.w&&y>=t.y&&y<=t.y+t.h)}
+function touchExplore(e){
+ unlockAudio();
+ let touch=e.changedTouches[0];
+ let t=objectAt(touch.clientX,touch.clientY);
+ let now=Date.now();
+ if(now-lastTouch>450){lastTouch=now;one('footsteps',.28,450)}
+ if(t){
+  setFocus(t);
+  if(t.name!==lastName){
+   lastName=t.name;
+   speak(t.name);
+   if(t.type==='sound'&&t.data&&t.data.sound)one(t.data.sound,.45,800);
+  }
+ }
+}
+function touchEnd(e){
+ let now=Date.now();
+ if(now-lastTap<500&&current){interact()}
+ lastTap=now;
+ lastName='';
+}
+$('world').addEventListener('touchstart',touchExplore,{passive:true});
+$('world').addEventListener('touchmove',touchExplore,{passive:true});
+$('world').addEventListener('touchend',touchEnd,{passive:true});
+
+function interact(){
+ unlockAudio();
+ if(!current){notice('Nothing selected.');return}
+ let t=current;
+ if(t.kind==='door'){goAreaSafe(t.data.to,true);return}
+ if(t.kind==='child'){if(t.type==='adoptionChild')meetAdoptionChild(t.adoptIndex);else interactChild(child(t.child));return}
+ if(t.kind==='person'){startConversation(t.name,t.role||t.type);return}
+ if(t.kind==='pet'){interactPet(pet(t.pet));return}
+ if(t.kind==='item'){pickupDropped(t.idx);return}
+ if(t.type==='container'){openContainer(t);return}
+ if(t.type==='car'){openCar();return}
+ if(t.type==='trolley'){game.trolley=true;one('trolley',.5,700);notice('You start pushing the trolley.');render();return}
+ if(t.type==='trolleySeat'){putChildInTrolleySeat();return}
+ if(t.type==='carry'){game.carrying={type:t.data.item,label:t.name};notice('Picked up '+t.name);render();return}
+ if(t.type==='checkout'){checkout();return}
+ if(t.type==='adoptionList'){openAdoption();return}
+ if(t.type==='petAdopt'){adoptPet(t.data.kind);return}
+ if(t.type==='jobBoard'){openMoney();return}
+ if(t.type==='ambulance'){callAmbulance();return}
+ if(t.type==='sound'){one(t.data.sound||'beep');return}
+ if(t.type==='water'){one('bath',.5,1500);notice('Water runs.');advanceAction();return}
+ if(game.carrying)useOrPlace();
+ else {notice('You use '+t.name+'.');advanceAction();}
+}
+function goArea(to){goAreaSafe(to,true)}
+function goAreaSafe(to,doorSound=false){
+ if(!AREAS[to]){notice('That place does not exist.');return}
+ stopAll();
+ area=to;
+ current=null;
+ lastName='';
+ if(doorSound)one('door',.65,900);
+ showGame();
+ setTimeout(()=>{try{render();$('placeTitle').textContent=cur().name;$('status').textContent=statusText()}catch(e){}},80);
+}
+function pickupDropped(i){let arr=game.items[area]||[];let it=arr.splice(i,1)[0];if(it){game.carrying=it;notice('Picked up '+it.label)}game.items[area]=arr;render()}
+
+function openContainer(t){container=t;containerCurrent=null;one(t.name==='fridge'?'fridgeOpen':t.name.includes('cupboard')?'cupboard':'paper');$('containerTitle').textContent=t.name;$('containerInfo').textContent='Explore inside '+t.name+'.';show('containerScreen');renderContainer()}
+function containerTargets(){if(!container)return[];return (container.data.contents||[]).map((name,i)=>({id:'ci'+i,name,type:'containerItem',x:10+(i%3)*30,y:15+Math.floor(i/3)*23,w:25,h:16,idx:i}))}
+function renderContainer(){let w=$('containerWorld');w.innerHTML='';containerTargets().forEach(t=>{let d=document.createElement('div');d.className='obj';d.id='cobj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=t.name;d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',t.name+', '+hint(t));d.onclick=function(ev){ev.preventDefault();activateTargetById(t.id)};d.ondblclick=function(ev){ev.preventDefault();activateTargetById(t.id)};w.appendChild(d)});$('containerFocus').innerHTML='<strong>Touching:</strong> nothing'}
+function containerTouch(e){let t=objectAt(e.changedTouches[0].clientX,e.changedTouches[0].clientY,'containerWorld');if(t){containerCurrent=t;document.querySelectorAll('#containerWorld .obj').forEach(e=>e.classList.remove('target'));let el=$('cobj_'+t.id);if(el)el.classList.add('target');$('containerFocus').innerHTML='<strong>Touching:</strong> '+t.name;speak(t.name)}}
+$('containerWorld').addEventListener('touchstart',containerTouch,{passive:true});
+$('containerWorld').addEventListener('touchmove',containerTouch,{passive:true});
+$('containerWorld').addEventListener('touchend',()=>takeContainerItem(),{passive:true});
+function item(name){let type=name;if(name==='bottles')type='bottle';if(name==='meal ingredients')type='food';if(name==='school uniform'||name==='pyjamas')type='clothes';return{type,label:name}}
+function takeContainerItem(){if(!containerCurrent){notice('No item selected.');return}let it=item(containerCurrent.name);if(area==='shop'&&game.trolley){game.trolleyItems.push(it.label);one('beep');notice(it.label+' added to trolley.')}else{game.carrying=it;notice('Picked up '+it.label)}advanceAction();showGame()}
+function closeContainer(){if(container&&container.name==='fridge')one('fridgeClose');container=null;containerCurrent=null;showGame()}
+
+function useOrPlace(){
+ if(!game.carrying){notice('You are not carrying anything.');return}
+ if(!current){notice('Touch a place, child, pet, or person first.');return}
+ if(current.kind==='child'&&current.type!=='adoptionChild'){useOnChild(game.carrying,child(current.child));return}
+ if(current.kind==='pet'){useOnPet(game.carrying,pet(current.pet));return}
+ if(game.carrying.type==='child'){placeChild(game.carrying,current);return}
+ (game.items[area] ||= []).push({...game.carrying,x:current.x||45,y:Math.min(88,(current.y||45)+12)});
+ notice('Put down '+game.carrying.label);
+ game.carrying=null;advanceAction();render();
+}
+function interactChild(c){if(!c)return;if(game.carrying){useOnChild(game.carrying,c);return}if(c.age<60){game.carrying={type:'child',id:c.id,label:c.name};c.loc='carried';c.pos='carried';one(c.age<18?'baby':'cry',.35,700);notice('Picked up '+c.name);render();updateSoundscape();return}childId=c.id;talkToChild()}
+function placeChild(it,t){let c=child(it.id);if(!c)return;let safe=['sleep','highchair','seat','surface','change','bath','play','trolleySeat'];if(!safe.includes(t.type)){notice(c.name+' cannot be placed there safely.');return}c.loc=area;c.x=t.x;c.y=t.y;c.pos=t.type==='bath'?'in the bath':t.type==='trolleySeat'?'in the trolley child seat':t.type==='sleep'?'in '+t.name:'on '+t.name;if(t.type==='sleep'){c.tired=0;c.need=c.need==='tired'?'':c.need;c.activity='sleeping';one('snore',.35,1000)}if(t.type==='bath'){c.hygiene=100;c.need=c.need==='dirty'?'':c.need;one('bath',.5,1400)}game.carrying=null;notice('You place '+c.name+' '+c.pos+'.');advanceAction();render();updateSoundscape()}
+function useOnChild(it,c){if(!c)return;let label=it.label,type=it.type;
+ if(type==='bottle'){if(c.age>48){childSay(c,"I don't need a bottle.");return}c.hunger=100;c.thirst=100;c.need='';one('bottle');game.carrying=null;notice(c.name+' drinks.')}
+ else if(['snack','fruit','food','biscuits','meal ingredients','sandwich'].includes(type)||['snack','fruit','biscuits','meal ingredients','sandwich'].includes(label)){if(c.allergy==='peanut'&&label.includes('biscuit')){allergyReaction(c,'peanut');game.carrying=null;return}c.hunger=100;c.need='';one('eat');game.carrying=null;notice(c.name+' eats.')}
+ else if(['drink','juice','milk','cup'].includes(type)||['drink','juice','milk','cup'].includes(label)){if(c.allergy==='dairy'&&label==='milk'){allergyReaction(c,'dairy');game.carrying=null;return}c.thirst=100;c.need='';one('drink');game.carrying=null;notice(c.name+' drinks.')}
+ else if(type==='medicine'||label==='medicine'){treat(c);game.carrying=null}
+ else if(type==='thermometer'||label==='thermometer'){one('beep');notice(assessment(c));}
+ else if(['nappies','wipes','baby cream'].includes(type)||['nappies','wipes','baby cream'].includes(label)){c.hygiene=100;c.need=c.need==='dirty'?'':c.need;one('wipes');game.carrying=null;notice(c.name+' is changed.')}
+ else if(['rattle','toy','squeaky toy'].includes(type)||['rattle','toy','squeaky toy'].includes(label)){c.happy=clamp(c.happy+15,0,100);c.need=c.need==='attention'?'':c.need;c.activity='playing';one(type==='rattle'?'rattle':'beep');notice(c.name+' plays.')}
+ else {notice(c.name+' does not need that right now.')}
+ advanceAction();updateSoundscape();render();
+}
+function childSay(c,t){notice(c.name+': '+t)}
+function allergyReaction(c,type){c.need='ill';c.ill='allergy';c.illStage=4;c.health='emergency';one('cough');setTimeout(()=>one('heart'),800);addMessage('Emergency',c.name+' may be having an allergic reaction. Get urgent help.');notice(c.name+' is having an allergic reaction.')}
+function assessment(c){if(!c.need&&!c.ill)return c.name+' seems well.';return `${c.name}: ${observe(c)}. Health ${c.health}. Illness ${c.ill||'none'} stage ${c.illStage||0}.`}
+function treat(c){if(c.need==='ill'||c.ill){c.health='under treatment';c.illStage=Math.max(0,(c.illStage||1)-1);one('pill');if(c.illStage<=0){c.need='';c.ill='';c.health='recovering';notice(c.name+' is recovering.')}else notice(c.name+' is under treatment.')}else notice(c.name+' does not need medicine.')}
+function checkSelectedChild(){let c=child(childId);if(!c)return;notice(assessment(c));if(c.need==='ill'){if(c.ill==='stomach'){one('stomach');setTimeout(()=>one('burp'),900);if(c.illStage>2)setTimeout(()=>one('vomit'),1700)}else if(c.ill==='sneeze')one('sneeze');else one('cough')}else if(c.activity==='sleeping')one('snore');else if(c.age<18)one('baby')}
+function carrySelected(){let c=child(childId);if(!c)return;if(c.age>=60){childSay(c,'I can walk.');return}game.carrying={type:'child',id:c.id,label:c.name};c.loc='carried';c.pos='carried';showGame()}
+function enrollSelected(){let c=child(childId);if(!c)return;if(c.age<24){notice(c.name+' is too young for nursery.');return}c.enrolled=true;addReport(c.name+' was enrolled.');notice(c.name+' is enrolled.')}
+function talkToChild(){let c=child(childId);if(!c)return;startConversation(c.name,'child',c.id)}
+
+function openCar(){renderCar();show('carScreen')}
+function renderCar(){let kids=game.car.passengers.map(id=>child(id)?.name).filter(Boolean).join(', ')||'none';let adults=game.car.adults.join(', ')||'none';$('carInfo').innerHTML=`Vehicle: ${game.vehicle}<br>Seats: ${game.seats}<br>Children: ${kids}<br>Adults: ${adults}<br>Boot: ${game.car.boot.join(', ')||'empty'}<br>Selected child: ${childId?child(childId)?.name:'none'}`}
+function putSelectedChildInCar(){let c=child(childId);if(!c){notice('Select a child from Family first.');return}if(c.age<60&&c.loc!=='carried'){notice('Pick '+c.name+' up first.');return}if(totalPassengers()>=game.seats){notice('No seats left. You may need a larger vehicle.');return}game.car.passengers.push(c.id);c.loc='car';c.pos=c.age<48?'in car seat':'in car';game.carrying=null;one('carDoorOpen');setTimeout(()=>one('carDoorClose'),600);notice(c.name+' is in the car.');renderCar()}
+function totalPassengers(){return game.car.passengers.length+game.car.adults.length+1}
+function takeChildOutOfCar(){let c=child(childId)||child(game.car.passengers[0]);if(!c){notice('No child selected or in the car.');return}game.car.passengers=game.car.passengers.filter(id=>id!==c.id);c.loc=area;c.x=45;c.y=55;c.pos='floor';one('carDoorOpen');notice(c.name+' gets out.');render();renderCar()}
+function takeAllChildrenOut(){let names=[];game.car.passengers.slice().forEach(id=>{let c=child(id);if(c){c.loc=area;c.x=35+Math.random()*25;c.y=55;c.pos='floor';names.push(c.name)}});game.car.passengers=[];notice(names.length?'Took out '+names.join(', '):'No children in the car.');render();renderCar()}
+function grandmaInCar(){if(totalPassengers()>=game.seats){notice('No seats left for Grandma.');return}let g=game.adults.find(a=>a.id==='grandma');if(g){game.car.adults.push('Grandma');g.area='car';one('carDoorOpen');notice('Grandma gets into the car.');renderCar()}}
+function partnerInCar(){if(!game.partner){notice('You do not have a partner yet.');return}if(totalPassengers()>=game.seats){notice('No seats left for your partner.');return}game.car.adults.push(game.partner.name);game.partner.area='car';one('carDoorOpen');notice(game.partner.name+' gets into the car.');renderCar()}
+function takeShoppingFromBoot(){if(!game.car.boot.length){notice('Boot is empty.');return}game.bag=game.bag.concat(game.car.boot);game.car.boot=[];notice('You take the shopping from the boot.');renderCar()}
+function startDriving(){let unsafe=game.children.find(c=>c.age<48&&homeAreas().includes(c.loc)&&!game.car.passengers.includes(c.id)&&game.babysitter!=='Grandma'&&!(game.partner&&game.partner.babysitting));if(unsafe){notice(unsafe.name+' is still at home. Put them in the car or arrange babysitting.');return}stopAll();one('carStart');setTimeout(()=>startLoop('car','carRun',.5),800);driveOptions=['frontGarden','shop','school','nurseryPlace','doctor','hospital','park','adoption','shelter','cafe','jobCentre'];newDrivePrompt();show('drive')}
+function homeAreas(){return['living','nursery','bedroom','kitchen','garden','bathroom','hall','landing']}
+function newDrivePrompt(){let loc=rand(driveOptions),side=rand(['left','right','ahead']);$('drivePrompt').textContent=`${AREAS[loc].name} ${side==='ahead'?'ahead':'on the '+side}.`;$('driveStatus').textContent='Tilt or use buttons.';$('drive').dataset.loc=loc;$('drive').dataset.side=side;speak($('drivePrompt').textContent)}
+function driveChoice(c){if(c===$('drive').dataset.side){stopDriving(false);area=$('drive').dataset.loc;showGame();if(game.car.passengers.length)notice('Children are still in the car. Take them out.')}else newDrivePrompt()}
+function driveLeft(){driveChoice('left')}function driveRight(){driveChoice('right')}function driveStraight(){driveChoice('ahead')}
+function stopDriving(back=true){stopLoop('car');one('carStop');if(back)showGame()}
+function requestMotion(){if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted'){motionReady=true;notice('Tilt driving enabled.')}})}else{motionReady=true;notice('Tilt driving enabled if supported.')}}
+window.addEventListener('deviceorientation',e=>{if(!$('drive').classList.contains('active')||!motionReady)return;let g=e.gamma||0,now=Date.now();if(now-lastTilt<2200)return;if(g<-18){lastTilt=now;driveLeft()}else if(g>18){lastTilt=now;driveRight()}});
+
+function checkout(){if(!game.trolleyItems.length){notice('Your trolley is empty.');return}let cost=game.trolleyItems.length*5;if(game.money<cost){notice('Not enough money.');return}game.money-=cost;game.car.boot=game.car.boot.concat(game.trolleyItems);game.trolleyItems=[];game.trolley=false;one('cash');notice('Paid. Shopping is in the car boot.');advanceAction();render()}
+function putChildInTrolleySeat(){if(!game.carrying||game.carrying.type!=='child'){notice('Pick up a baby or toddler first.');return}placeChild(game.carrying,current)}
+
+function startConversation(name,role,id=null){convo={name,role,id,log:[`${name}: ${greeting(role,name)}`]};renderConversation()}
+function greeting(role,name){if(role==='grandma')return'Hello dear. I can babysit, come shopping, talk, or help with the children.';if(role==='partner')return'Hi. Tell me what you need and I will help if I can.';if(role==='doctor')return'Tell me symptoms, duration, temperature, eating, drinking and sleep.';if(role==='nurse')return'I can triage, admit, monitor, and discharge when safe.';if(role==='teacher')return'I can help with school, enrollment, homework, friends and illness calls.';if(role==='nursery')return'I can help with naps, meals, play, comfort and nursery reports.';if(role==='adoption')return'You can meet children, ask questions and adopt from the adoption list.';if(role==='child')return child(id)?.age<18?'Babble.':'Hi.';if(role==='job')return'I can help you find work.';return'Hello.'}
+function renderConversation(){$('conversationTitle').textContent=convo.name;$('conversationLog').innerHTML=convo.log.join('<br>');$('replyBox').value='';show('conversation')}
+function sendReply(){let txt=$('replyBox').value.trim();if(!txt)return;convo.log.push('You: '+txt);applyConversationEffects(convo,txt.toLowerCase());let r=generatedReply(convo,txt.toLowerCase());convo.log.push(`${convo.name}: ${r}`);speak(r);renderConversation()}
+function generatedReply(c,l){
+ let kid=child(childId)||game.children.find(x=>x.need)||game.children[0];
+ if(c.role==='child'){let ch=child(c.id)||kid;if(!ch)return'I am here.';if(ch.age<18)return rand(['Babble!','Mama!','Giggle.']);if(l.includes('how')||l.includes('feel'))return ch.need?`I feel ${observe(ch)}.`:'I feel okay.';if(l.includes('park'))return'I would like the park.';if(l.includes('love'))return'I love you too.';return rand(['Okay.','Can we do something?','I was playing.','Can I have a snack?']);}
+ if(c.role==='grandma'){if(l.includes('where'))return`I am in ${AREAS[game.adults.find(a=>a.id==='grandma').area]?.name||'the house'}, and I will stay still.`;if(l.includes('shopping'))return'Yes dear. I will wait by the car.';if(l.includes('babysit')||l.includes('watch'))return'I will babysit. I will call you if anything happens.';if(l.includes('ill')||l.includes('sick'))return'Who is unwell, what symptoms, and how long has it been?';return'I understand. I am not just repeating myself; I am listening.'}
+ if(c.role==='partner'){if(l.includes('shopping'))return'I can come shopping or stay home with the children.';if(l.includes('babysit'))return'I will watch the children.';if(l.includes('marry'))return game.relationships.Partner>75?'Yes. I want to marry you.':'I care about you, but we need more time.';return'I hear you. We can work it out together.'}
+ if(c.role==='doctor'||c.role==='nurse'){if(!kid)return'I need to know who the patient is.';if(l.includes('discharge'))return dischargeChild(kid);if(l.includes('admit')||l.includes('breathing')||l.includes('emergency'))return admitChild(kid);if(l.includes('cough')&&!/(day|days|fever|worse|temperature|not eating|not drinking)/.test(l))return'How many days has the cough been going on, and are they eating and drinking?';if(/day|days|fever|worse|temperature|vomit|sick|not eating|not drinking|allergy|rash/.test(l))return fullTreatment(kid,c.role==='nurse'?'Hospital':'Doctor');return'I need symptoms, duration, temperature, eating, drinking and sleep. Then I can diagnose and treat.'}
+ if(c.role==='teacher'){if(l.includes('enroll')&&kid){kid.enrolled=true;addReport(kid.name+' enrolled at school.');return kid.name+' is enrolled. We will call if they are ill and send reports.'}return'I can help with lessons, homework, friends, behaviour, trips, illness calls and reports.'}
+ if(c.role==='nursery'){if(l.includes('enroll')&&kid){kid.enrolled=true;addReport(kid.name+' enrolled at nursery.');return kid.name+' is enrolled at nursery.'}return'We record meals, drinks, naps, play, comfort, allergies and development.'}
+ if(c.role==='adoption')return'Use the Adoption List to adopt. You can meet each child first and ask about their needs.';
+ if(c.role==='friend')return rand(['Would you like to meet up?','Your child could come for a play date.','It is nice to see you.']);
+ if(c.role==='job')return'Open Money and Work to choose a job. Better jobs give more income but more stress.';
+ if(c.role==='police')return'Police have logged the concern. If someone is unsafe, move to safety.';
+ if(c.role==='fire')return'If there is fire or smoke, leave now. Help is coming.';
+ if(c.role==='vet')return'I can check pets, treat illness and remind you about vet appointments.';
+ return'I understand. Tell me more.';
+}
+function applyConversationEffects(c,l){let kid=child(childId)||game.children[0];if(c.role==='grandma'){let g=game.adults.find(a=>a.id==='grandma');if(l.includes('shopping')){g.area='frontGarden';g.locked=true;remember('Grandma agreed to come shopping.')}if(l.includes('babysit')||l.includes('watch')){game.babysitter='Grandma';g.locked=true;g.area=area;remember('Grandma babysat.')}}if(c.role==='partner'&&game.partner){if(l.includes('babysit'))game.partner.babysitting=true;if(l.includes('shopping')){game.partner.area='frontGarden';remember(game.partner.name+' agreed to come shopping.')}}if((c.role==='teacher'||c.role==='nursery')&&l.includes('enroll')&&kid)kid.enrolled=true}
+function closeConversation(){convo=null;if(childId)openChild(childId);else showGame()}
+
+function openFamily(){let p=game.player;let html=`<div class="card"><strong>${p.name}</strong><br>Your character<br>Age ${p.age}<br>Health ${p.health}<br>Need ${p.need||'none'}<br>Illness ${p.ill||'none'} stage ${p.illStage||0}<br>Pregnancy ${p.pregnant?'stage '+p.pregStage+', birth plan '+p.birthPlan:'no'}<br>Job ${p.job}</div>`;if(game.partner)html+=`<div class="card"><strong>${game.partner.name}</strong><br>Partner<br>Relationship ${game.relationships.Partner}<br>Health ${game.partner.health}<br>Area ${AREAS[game.partner.area]?.name||game.partner.area}</div>`;html+=game.adults.map(a=>`<div class="card"><strong>${a.name}</strong><br>${a.role}<br>Age ${a.age}<br>Health ${a.health}<br>Need ${a.need||'none'}<br>Location ${AREAS[a.area]?.name||a.area}</div>`).join('');html+=game.children.map(c=>`<div class="card"><strong>${c.name}</strong><br>Age ${ageText(c.age)}<br>Location ${locText(c)}<br>Position ${c.pos}<br>Observation ${observe(c)}<br>Health ${c.health}<br>Illness ${c.ill||'none'} stage ${c.illStage||0}<br>Allergy ${c.allergy}<br>Happy ${c.happy}<br>Likes ${c.likes.join(', ')}<br>Personality ${c.personality}<br>Enrolled ${c.enrolled?'yes':'no'}<br><button onclick="openChild('${c.id}')">Open ${c.name}</button></div>`).join('');html+=game.pets.map(p=>`<div class="card"><strong>${p.name}</strong><br>${p.kind}<br>Age ${ageText(p.age)}<br>Health ${p.health}<br>Need ${p.need||'none'}<br>Location ${AREAS[p.loc]?.name||p.loc}</div>`).join('');$('familyList').innerHTML=html;show('family')}
+function openChild(id){childId=id;let c=child(id);$('childTitle').textContent=c.name;$('childInfo').innerHTML=`Age ${ageText(c.age)}<br>Location ${locText(c)}<br>Position ${c.pos}<br>Observation ${observe(c)}<br>Health ${c.health}<br>Need ${c.need||'none'}<br>Illness ${c.ill||'none'} stage ${c.illStage||0}<br>Allergy ${c.allergy}<br>Hunger ${c.hunger}<br>Thirst ${c.thirst}<br>Tired ${c.tired}<br>Hygiene ${c.hygiene}<br>Happy ${c.happy}<br>Friends ${c.friends.join(', ')||'none'}<br>Enrolled ${c.enrolled?'yes':'no'}`;show('childScreen')}
+function openPhone(){game.messages.forEach(m=>m.unread=false);$('phoneInfo').innerHTML=(game.messages.map(m=>`<div class="notice"><strong>${m.from}</strong>: ${m.text}</div>`).join('')||'No messages yet.');show('phone')}
+function phoneContact(name){let role={Grandma:'grandma',Partner:'partner',School:'teacher',Nursery:'nursery',Doctor:'doctor',Hospital:'nurse',Police:'police','Fire Service':'fire','Adoption Centre':'adoption',Vet:'vet'}[name]||'adult';startConversation(name,role)}
+function openReports(){$('reportsInfo').innerHTML=game.reports.join('<br>')||'No reports yet.';show('reports')}
+function openMemories(){$('memoriesInfo').innerHTML=game.memories.join('<br>')||'No memories yet.';show('memories')}
+function openSummary(){let html=`<strong>Status</strong><br>${statusText()}<br><br><strong>Children</strong><br>${game.children.map(c=>c.name+': '+observe(c)+' / '+c.health+' / '+locText(c)).join('<br>')||'none'}<br><br><strong>World log</strong><br>${game.worldLog.slice(0,30).join('<br>')||'No world events yet.'}`;$('summaryInfo').innerHTML=html;show('summary')}
+function openMoney(){let html=`Money ${game.money}<br>Income ${game.income} per day<br>Bills ${game.bills} every 5 days<br>Job ${game.player.job}<br>Home ${game.home}<br>Vehicle ${game.vehicle}<br>Seats ${game.seats}<br>Supplies in bag: ${game.bag.join(', ')||'none'}`;$('moneyInfo').innerHTML=html;show('money')}
+function openRelationships(){let rel=game.relationships;let html=Object.keys(rel).map(k=>`${k}: ${rel[k]}`).join('<br>');if(game.partner)html+=`<br><br>Partner: ${game.partner.name}<br>Status: ${game.partner.status}<br>Can help: yes`;else html+='<br><br>No partner yet.';$('relationshipsInfo').innerHTML=html;show('relationships')}
+
+function generateAdoptionChildren(msg=true){let names=['Ava','Sophie','Lily','Emily','Mia','Ella','Noah','Leo','Oliver','Amelia','Grace','Ruby','Isla','Maya'];game.adoption=[];for(let i=0;i<8;i++)game.adoption.push({name:rand(names),age:rand([0,4,8,18,30,48,72,96,132,168]),diff:rand(['none','none','autistic','ADHD','blind','deaf','limited mobility','non-verbal']),allergy:rand(['none','none','peanut','pollen','dairy']),personality:rand(['gentle','curious','playful','quiet','chatty']),likes:[rand(['music','stories','cars','animals','soft toys','drawing'])]});if(msg)notice('New children are waiting at the adoption centre.')}
+function openAdoption(){if(!game.adoption.length)generateAdoptionChildren(false);$('adoptionList').innerHTML=game.adoption.map((c,i)=>`<div class="card"><strong>${c.name}</strong><br>Age ${ageText(c.age)}<br>Difference ${c.diff}<br>Allergy ${c.allergy}<br>Personality ${c.personality}<br>Likes ${c.likes.join(', ')}<br><button onclick="adoptGenerated(${i})">Adopt ${c.name}</button></div>`).join('');show('adoptionScreen')}
+function meetAdoptionChild(i){let c=game.adoption[i];if(!c){openAdoption();return}startConversation(c.name,'adoptionChild');notice(`This is ${c.name}. Age ${ageText(c.age)}. Personality ${c.personality}. Allergy ${c.allergy}.`)}
+function adoptGenerated(i){let a=game.adoption[i];if(!a)return;addChild(a.name,a.age);let c=game.children[game.children.length-1];c.diff=a.diff;c.allergy=a.allergy;c.personality=a.personality;c.likes=a.likes;game.adoption.splice(i,1);remember(a.name+' joined the family through adoption.');notice(a.name+' has joined your family.');openAdoption()}
+function adoptPet(kind){addPet(kind,true);remember('Adopted a '+kind+'.')}
+function interactPet(p){if(!p)return;if(game.carrying){useOnPet(game.carrying,p);return}one(p.kind==='cat'?'cat':'dog');notice(p.name+' is here.')}
+function useOnPet(it,p){if(['snack','food','drink'].includes(it.type)||['snack','meal ingredients','drink'].includes(it.label)){p.hunger=100;p.happy=100;p.need='';one(p.kind==='cat'?'purr':'dog');game.carrying=null;notice(p.name+' is happy.')}else notice(p.name+' ignores '+it.label+'.')}
+
+function advanceAction(){advanceTime();playerTick();childrenTick();adultsTick();petsTick();pregnancyTick();schoolNurseryTick();hospitalTick();randomEvents();moneyTick();carSafety();saveGame(false)}
+function advanceTime(){let h=new Date().getHours();game.time=h>=5&&h<12?'Morning':h>=12&&h<17?'Afternoon':h>=17&&h<21?'Evening':'Night';if(Math.random()<.35){if(game.time==='Night'){game.day++;ageTick();}}}
+function playerTick(){let p=game.player;p.hunger-=rand([2,3,4]);p.thirst-=rand([2,3,4]);p.tired+=rand([2,3,4]);p.stress+=game.children.length>3?2:1;if(!p.need){if(p.hunger<25)p.need='hungry';else if(p.thirst<25)p.need='thirsty';else if(p.tired>90)p.need='tired';else if(Math.random()<.035){p.need='ill';p.ill=rand(['cold','stomach','migraine','stress']);p.illStage=1;p.health='poorly';addMessage('Health','You are starting to feel unwell.')}}}
+function childrenTick(){game.children.forEach(c=>{if(c.health==='admitted')return;if(c.health==='under treatment'&&Math.random()<.45){c.illStage--;if(c.illStage<=0){c.need='';c.ill='';c.health='recovering';addMessage('Health',c.name+' is recovering.')}}else if(c.need==='ill'&&c.health!=='under treatment'){if(Math.random()<.28)c.illStage=Math.min(4,c.illStage+1);if(c.illStage>=3)c.health='worse'}if(c.need)return;c.hunger-=rand([2,3,4,5]);c.thirst-=rand([2,3,4]);c.tired+=rand([1,2,3,4]);c.hygiene-=rand([1,2,3]);if(c.hunger<28)c.need='hungry';else if(c.thirst<25)c.need='thirsty';else if(c.tired>90)c.need='tired';else if(c.hygiene<25&&c.age<48)c.need='dirty';else if(Math.random()<.065){c.need='ill';c.ill=rand(['cold','stomach','ear','chest','sneeze']);c.illStage=1;c.health='poorly';addMessage('Health',c.name+' seems unwell: '+observe(c));}else if(Math.random()<.08)c.need='attention';moveChildByAge(c);})}
+function moveChildByAge(c){if(c.loc==='car'||c.loc==='carried'||c.admitted||c.need)return;if(c.age<6)return;if(c.age<12&&Math.random()<.08){c.x=clamp(c.x+rand([-8,8]),10,80);c.y=clamp(c.y+rand([-8,8]),25,80);c.activity='rolling'}else if(c.age<24&&Math.random()<.12){c.x=clamp(c.x+rand([-12,12]),10,80);c.y=clamp(c.y+rand([-12,12]),25,80);c.activity='crawling'}else if(c.age<60&&Math.random()<.18){c.loc=rand(['living','nursery','kitchen','garden']);c.x=20+Math.random()*55;c.y=35+Math.random()*40;c.activity='wandering'}else if(c.age>=60&&Math.random()<.18){c.loc=rand(['living','kitchen','bedroom','garden','hall']);c.x=20+Math.random()*55;c.y=35+Math.random()*40;c.activity=rand(['playing','reading','settled'])}}
+function adultsTick(){game.adults.forEach(a=>{if(a.area==='car'||a.locked)return;if(Math.random()<.10){a.area=rand(['living','kitchen','garden','hall']);a.x=20+Math.random()*55;a.y=30+Math.random()*40}if(!a.need&&Math.random()<.03){a.need=rand(['tired','hungry','company']);addMessage(a.name,a.need==='company'?'Would you like to spend some time together?':'I could do with a little help today.')}});if(game.partner&&!game.partner.babysitting&&game.partner.area!=='car'&&Math.random()<.08){game.partner.area=rand(['living','kitchen','garden','frontGarden']);}}
+function petsTick(){game.pets.forEach(p=>{if(!p.need){p.hunger-=3;if(p.hunger<25)p.need='hungry';else if(Math.random()<.02){p.need='ill';p.health='poorly';addMessage('Vet',p.name+' seems unwell and may need the vet.')}}if(p.loc!=='car'&&Math.random()<.12){p.loc=rand(['living','garden','kitchen']);p.x=20+Math.random()*60;p.y=35+Math.random()*40}})}
+function pregnancyTick(){let p=game.player;if(!p.pregnant)return;if(Math.random()<.25){p.pregStage++;if(p.pregStage===2)addMessage('Midwife','You may feel tired or sick in early pregnancy.');if(p.pregStage===4)addMessage('Midwife','Your scan appointment is due.');if(p.pregStage===7)addMessage('Hospital','Talk about your birth plan soon.');if(p.pregStage>=9){let name=rand(['Ava','Lily','Sophie','Ella','Noah','Leo','Isla','Maya']);addChild(name,0);p.pregnant=false;p.pregStage=0;p.health='recovering';remember('Baby '+name+' was born.');addMessage('Birth','The baby has arrived. Welcome '+name+'.')}}}
+function schoolNurseryTick(){game.children.forEach(c=>{if(!c.enrolled)return;if((c.loc==='school'||c.loc==='nurseryPlace')&&Math.random()<.35){let place=c.age<60?'Nursery':'School';let report=rand([`${c.name} ate well today.`,`${c.name} played happily.`,`${c.name} seemed tired.`,`${c.name} made progress.`,`${c.name} joined activities.`]);addReport(place+': '+report);if(c.need==='ill')addMessage(place,c.name+' is unwell and needs collecting.')}})}
+function hospitalTick(){game.children.forEach(c=>{if(c.health==='admitted'){if(Math.random()<.55){c.illStage=Math.max(0,c.illStage-1);addReport('Hospital ward: nurse checked '+c.name+'. '+observe(c));if(c.illStage<=0){c.health='ready for discharge';c.need='';c.ill='';addMessage('Hospital',c.name+' may be ready for discharge.')}}}})}
+function randomEvents(){let chance=.22;if(Math.random()>chance)return;let event=rand(['message','call','schoolTrip','birthday','grandma','bill','playdate','appointment','partner','work']);if(event==='message')addMessage(rand(['Grandma','Friend','School','Nursery']),rand(['How are you today?','Can we arrange a visit?','Just checking in.','Please check the reports.']));if(event==='call')addMessage('Incoming call',rand(['Grandma is calling.','School is calling.','Nursery is calling.','Doctor surgery is calling.']));if(event==='schoolTrip')addMessage('School','A school trip is available. It costs 15.');if(event==='birthday')addMessage('Friend','Birthday party invitation for one of the children.');if(event==='grandma')addMessage('Grandma','Would you like me to babysit or come over?');if(event==='bill'){let cost=rand([20,35,50]);game.money-=cost;addMessage('Bills','Unexpected bill paid: '+cost);}if(event==='playdate')addMessage('Friend','Would one of the children like a play date?');if(event==='appointment')addMessage('Calendar','A health or family appointment is coming up.');if(event==='partner'&&game.partner)addMessage(game.partner.name,'Do you need help with the children?');if(event==='work'&&game.player.job!=='none'){game.money+=game.income;addMessage('Work','You earned '+game.income+'.')}}
+function moneyTick(){if(game.day%5===0&&Math.random()<.12){game.money-=game.bills;addMessage('Bills','Regular bills paid: '+game.bills)}}
+function carSafety(){if(game.car.passengers.length&&area!=='frontGarden'&&area!=='street'&&area!=='car'){game.car.passengers.forEach(id=>{let c=child(id);if(c&&c.age<60)addMessage('Safety',c.name+' is still in the car. Take them out.');})}}
+function ageTick(){game.children.forEach(c=>c.age++);game.pets.forEach(p=>p.age++);if(game.day%365===0){game.player.age++;game.adults.forEach(a=>a.age++);if(game.partner)game.partner.age++}}
+
+function observe(c){if(c.health==='admitted')return'in hospital';if(c.health==='ready for discharge')return'ready for discharge';if(c.health==='recovering')return'recovering';if(c.need==='hungry')return c.age<36?'crying from hunger':'hungry';if(c.need==='thirsty')return'thirsty';if(c.need==='tired')return'tired';if(c.need==='dirty')return'needs changing';if(c.need==='attention')return'wants attention';if(c.need==='ill'){if(c.ill==='cold')return c.illStage>2?'coughing a lot and tired':'coughing and sniffly';if(c.ill==='stomach')return c.illStage>2?'vomiting risk and tummy upset':'tummy upset';if(c.ill==='chest')return'bad cough';if(c.ill==='ear')return'upset and touching ear';if(c.ill==='allergy')return'allergic reaction';return'poorly'}if(c.activity==='sleeping')return'asleep';if(c.activity==='playing')return'playing';if(c.activity==='crawling')return'crawling';if(c.activity==='rolling')return'rolling';if(c.age<18)return'babbling';return'settled'}
+function fullTreatment(c,place){if(!c)return'No child selected.';if(!c.need&&!c.ill)return c.name+' seems stable.';let diagnosis=diagnose(c);if(c.ill==='allergy'||c.illStage>=3||c.health==='worse')return admitChild(c)+' Diagnosis: '+diagnosis+'.';c.health='under treatment';c.illStage=Math.max(1,c.illStage||1);addReport(`${place}: ${c.name} diagnosed with ${diagnosis}. Treatment started.`);addMessage(place,`${c.name} is under treatment for ${diagnosis}.`);return `${c.name} has ${diagnosis}. Treatment started, with rest, fluids and follow-up.`}
+function diagnose(c){if(c.ill==='cold')return c.illStage>2?'bad cold':'mild cold';if(c.ill==='chest')return'possible chest infection';if(c.ill==='stomach')return c.illStage>2?'stomach bug with dehydration risk':'stomach bug';if(c.ill==='ear')return'possible ear infection';if(c.ill==='allergy')return'allergic reaction';return'unclear illness'}
+function admitChild(c){c.health='admitted';c.loc='hospital';c.x=45;c.y=70;c.pos='hospital bed';addReport('Hospital admission: '+c.name+' admitted.');addMessage('Hospital',c.name+' has been admitted for monitoring.');one('heart');return c.name+' has been admitted to hospital.'}
+function dischargeChild(c){if(c.health!=='ready for discharge'&&c.health!=='admitted')return c.name+' is not admitted.';c.health='recovering';c.need='';c.ill='';c.illStage=0;c.loc='frontGarden';c.x=45;c.y=55;c.pos='floor';addMessage('Hospital',c.name+' has been discharged.');return c.name+' has been discharged and is recovering.'}
+function callAmbulance(){let c=child(childId)||game.children.find(x=>x.health==='worse'||x.ill==='allergy'||x.need==='ill');if(!c){notice('No urgent child selected.');return}one('ambulance');notice('Ambulance called. '+admitChild(c));advanceAction();showGame()}
+
+function dailyRoutine(){game.children.forEach(c=>{if(c.need==='hungry'){c.hunger=100;c.need='';one('eat')}else if(c.need==='thirsty'){c.thirst=100;c.need='';one('drink')}else if(c.need==='dirty'){c.hygiene=100;c.need='';one('wipes')}else if(c.need==='tired'){c.tired=0;c.need='';c.activity='sleeping';one('snore')}else if(c.need==='attention'){c.happy=100;c.need='';one('baby')}});game.player.hunger=85;game.player.thirst=85;game.player.tired=Math.max(0,game.player.tired-25);notice('Family routine done.');advanceAction();showGame()}
+function startSchoolDay(){let sent=[];game.children.forEach(c=>{if(c.enrolled&&c.age>=24&&!c.need){c.loc=c.age<60?'nurseryPlace':'school';c.x=45;c.y=55;c.pos='with staff';sent.push(c.name)}});notice(sent.length?'Sent: '+sent.join(', '):'No enrolled children ready.');advanceAction();showGame()}
+function pickupAll(){let picked=[];game.children.forEach(c=>{if(c.loc==='school'||c.loc==='nurseryPlace'){c.loc='frontGarden';c.x=45;c.y=55;c.pos='floor';picked.push(c.name)}});notice(picked.length?'Picked up '+picked.join(', '):'No children to pick up.');advanceAction();showGame()}
+
+function getJob(){let jobs=[['part-time shop job',35,10],['nursery assistant',45,15],['office job',55,20],['self-employed creator',rand([30,70,100]),25]];let j=rand(jobs);game.player.job=j[0];game.income=j[1];game.player.stress+=j[2];notice('New job: '+j[0]+'. Income '+j[1]+' per work event.');openMoney()}
+function buyFoodAndSupplies(){let cost=60;if(game.money<cost){notice('Not enough money.');return}game.money-=cost;game.bag=game.bag.concat(['food','nappies','wipes','medicine','pet food']);notice('Bought weekly supplies.');openMoney()}
+function moveHouse(){let options=[['larger house',250,70],['family house',500,100],['accessible bungalow',400,80]];let h=rand(options);if(game.money<h[1]){notice('Not enough money to move.');return}game.money-=h[1];game.home=h[0];game.bills=h[2];notice('Moved to '+h[0]+'.');openMoney()}
+function buyVehicle(){let options=[['family car',400,5],['large van',700,8],['accessible family van',900,7]];let v=rand(options);if(game.money<v[1]){notice('Not enough money for a larger vehicle.');return}game.money-=v[1];game.vehicle=v[0];game.seats=v[2];notice('Bought '+v[0]+'.');openMoney()}
+function meetPartner(){if(game.partner){notice('You already have a partner.');return}let n=rand(['Alex','Jamie','Taylor','Morgan','Riley','Casey']);game.partner={name:n,age:rand([24,28,31,35]),status:'dating',health:'well',area:'cafe',x:45,y:40,babysitting:false};game.relationships.Partner=35;addMessage(n,'It was nice meeting you.');notice('You met '+n+'.');openRelationships()}
+function progressPartner(){if(!game.partner){notice('Meet someone first.');return}game.relationships.Partner=clamp(game.relationships.Partner+rand([8,12,15]),0,100);if(game.relationships.Partner>80&&game.partner.status==='dating')game.partner.status='engaged';if(game.relationships.Partner>90&&game.partner.status==='engaged')game.partner.status='married';notice('Partner relationship is now '+game.relationships.Partner+'. Status: '+game.partner.status);openRelationships()}
+function breakUp(){if(!game.partner){notice('No partner.');return}remember('Relationship with '+game.partner.name+' ended.');game.partner=null;game.relationships.Partner=0;notice('Relationship ended.');openRelationships()}
+
+function updateSoundscape(){
+ stopAll('amb_');stopAll('child_');
+ if(cur().amb)startLoop('amb_'+area,cur().amb,.12);
+ let important=game.children.find(c=>c.loc===area&&(c.need==='ill'||c.need||c.activity==='sleeping'));
+ if(important){
+  if(important.need==='ill'){
+   let s=important.ill==='stomach'?'stomach':important.ill==='sneeze'?'sneeze':important.ill==='allergy'?'heart':'cough';
+   startLoop('child_'+important.id,s,.45);
+  }else if(important.need&&important.age<36){
+   startLoop('child_'+important.id,'cry',.5);
+  }else if(important.activity==='sleeping'){
+   startLoop('child_'+important.id,'snore',.25);
+  }
+ }
+}
+function listen(){let parts=[];targets().forEach(t=>{if(t.kind==='child'){let c=child(t.child);parts.push(c.name+' is '+observe(c))}else if(t.kind==='person'||t.kind==='pet')parts.push(t.name+' is nearby');else if(t.kind==='door')parts.push(t.name)});if(cur().amb)parts.push('background sound '+cur().amb);if(game.trolley)parts.push('you are pushing the trolley');let text=parts.join('. ')||'You listen to the space around you.';notice(text)}
+function whereAmI(){notice(cur().name+(current?'. Touching '+current.name:''))}
+function callFamily(){let here=targets().filter(t=>['child','person','pet'].includes(t.kind)).map(t=>t.name);notice(here.length?here.join(', ')+' are here.':'No one answers nearby.')}
+function repeatLast(){speak(lastSpoken||'Nothing to repeat.')}
+function toggleSpeech(){speechOn=!speechOn;alert('Speech '+(speechOn?'on':'off'))}
+function toggleSounds(){soundsOn=!soundsOn;if(!soundsOn)stopAll();alert('Sounds '+(soundsOn?'on':'off'))}
+function cycleVolume(){soundVolume=soundVolume>.7?.45:soundVolume>.4?.2:.85;alert('Sound volume changed.')}
+function child(id){return game.children.find(c=>c.id===id)}
+function pet(id){return game.pets.find(p=>p.id===id)}
+function locText(c){return c.loc==='carried'?'carried':c.loc==='car'?'car':AREAS[c.loc]?.name||c.loc}
+function ageText(m){if(m<12)return m+' months';let y=Math.floor(m/12),mo=m%12;return y+' year'+(y===1?'':'s')+(mo?', '+mo+' months':'')}
+
+function applyOfflineProgression(){let now=Date.now(),last=game.lastRealTime||now,mins=Math.floor((now-last)/60000);if(mins<2){game.lastRealTime=now;return}let ticks=Math.min(120,Math.floor(mins/10));worldLog('You were away for about '+mins+' minutes.');for(let i=0;i<ticks;i++){playerTick();childrenTick();adultsTick();petsTick();pregnancyTick();schoolNurseryTick();hospitalTick();randomEvents()}game.lastRealTime=now;saveGame(false)}
+window.addEventListener('load',()=>{$('jsStatus').textContent='JavaScript loaded.'});
+window.onerror=(m,s,l)=>alert('Game error: '+m+' line '+l);
+window.addEventListener('beforeunload',()=>saveGame(false));
+
+
+/* Ultimate V13.1 upgrade layer */
+var V13_KEY='familyCareUltimateV131';
+var currentOneShot=null;
+const V13_SOUND_PRIORITY={ambulance:5,vomit:5,heart:5,cough:4,sneeze:4,stomach:4,burp:4,cry:4,phone:4,message:3,baby:3,rattle:2,beep:2,footsteps:1,door:2,trolley:2,supermarket:1,tv:1,birds:1,mobile:1};
+function play(n,v=1,loop=false,key=''){
+ if(!soundsOn||!S[n])return null;
+ try{let a=new Audio(S[n]);a.volume=clamp(v*soundVolume,0,1);a.loop=loop;let p=a.play();if(p)p.catch(()=>setTimeout(()=>{try{a.play().catch(()=>{})}catch(e){}},120));if(key)loops[key]=a;return a}catch(e){return null}
+}
+function one(n,v=1,stopAfter=0){
+ if(!soundsOn||!S[n])return null;
+ let pri=V13_SOUND_PRIORITY[n]||2;
+ try{if(currentOneShot&&!currentOneShot.paused){let old=Number(currentOneShot.dataset.priority||0);if(pri>=old){currentOneShot.pause();currentOneShot.currentTime=0}else return currentOneShot;}}catch(e){}
+ let a=play(n,v,false);if(a){a.dataset.priority=pri;currentOneShot=a;a.onended=()=>{if(currentOneShot===a)currentOneShot=null};}
+ if(a&&stopAfter)setTimeout(()=>{try{a.pause();a.currentTime=0;if(currentOneShot===a)currentOneShot=null}catch(e){}},stopAfter);
+ return a;
+}
+function soundSequence(seq,gap=800){if(!soundsOn||!seq||!seq.length)return;seq.forEach((s,i)=>setTimeout(()=>one(s,.8,1600),i*gap));}
+function soundForIllness(ill,stage=1){if(ill==='stomach')return stage>=3?['stomach','burp','cry','vomit']:stage>=2?['stomach','burp','cry']:['stomach','burp'];if(ill==='cold')return stage>=3?['cough','sneeze','cry']:['cough','sneeze'];if(ill==='chest')return ['cough','cough','heart'];if(ill==='ear')return ['cry','beep'];if(ill==='allergy')return ['cough','heart','ambulance'];if(ill==='sneeze')return ['sneeze','sneeze'];return ['beep'];}
+function chooseIllnessCause(ill){const causes={stomach:['stomach bug starting','food did not agree with them','ate too much','anxiety or worry','travel sickness','possible allergy risk'],cold:['caught a cold','tired and run down','school or nursery germs','change in weather'],chest:['a cough has developed further','a cold may have moved to the chest','needs a medical review'],ear:['possible ear infection','cold symptoms affecting the ear'],sneeze:['allergy symptoms','cold starting','dust or pollen'],allergy:['ate or touched something they are allergic to','possible exposure to an allergen'],migraine:['stress or tiredness','not enough rest','noise or bright light'],stress:['too much going on','not enough rest','needs support']};return rand(causes[ill]||['unclear cause']);}
+function describeIllness(c){if(!c.cause)c.cause=chooseIllnessCause(c.ill||'cold');return `${c.name} has ${observe(c)}. Possible cause: ${c.cause}.`;}
+function enhanceWorldV13(){
+ if(enhanceWorldV13.done)return;enhanceWorldV13.done=true;
+ function add(areaName,o){let arr=AREAS[areaName]?.objects;if(arr&&!arr.some(x=>x.name===o.name))arr.push(o)}
+ add('bathroom',itemObj('towel',5,88));add('bathroom',itemObj('sick bowl',34,88));add('bathroom',itemObj('wipes',62,88));
+ add('kitchen',itemObj('water bottle',75,88));add('kitchen',itemObj('sick bowl',48,88));add('nursery',itemObj('towel',8,88));
+ try{AREAS.bathroom.objects.find(o=>o.name==='medicine cupboard').data.contents=['medicine','thermometer','tissues','ice pack'];}catch(e){}
+}
+function iconName(t){let n=(t.name||'').toLowerCase(),type=t.type||'',kind=t.kind||'';if(kind==='child'||type==='adoptionChild')return'🧒 '+t.name;if(kind==='person'||type==='grandma'||type==='partner')return'🧍 '+t.name;if(kind==='pet'||type==='petWild'||type==='petAdopt')return'🐾 '+t.name;if(kind==='door')return'🚪 '+t.name;if(n.includes('fridge'))return'🧊 '+t.name;if(n.includes('cupboard')||n.includes('wardrobe'))return'🗄️ '+t.name;if(n.includes('car'))return'🚗 '+t.name;if(n.includes('trolley'))return'🛒 '+t.name;if(n.includes('cot')||n.includes('bed'))return'🛏️ '+t.name;if(n.includes('bath')||n.includes('sink')||n.includes('toilet'))return'🚿 '+t.name;if(n.includes('hospital')||n.includes('doctor')||n.includes('nurse'))return'🏥 '+t.name;if(n.includes('school'))return'🏫 '+t.name;if(n.includes('nursery'))return'🧸 '+t.name;if(n.includes('shop')||n.includes('checkout'))return'🛍️ '+t.name;if(n.includes('park')||n.includes('swing')||n.includes('slide'))return'🌳 '+t.name;if(n.includes('medicine')||n.includes('thermometer'))return'🌡️ '+t.name;if(n.includes('sick bowl'))return'🥣 '+t.name;if(n.includes('towel')||n.includes('wipe'))return'🧻 '+t.name;return'⬜ '+t.name;}
+var baseRenderV13=render;
+render=function(){enhanceWorldV13();$('placeTitle').textContent=cur().name;$('status').textContent=statusText();$('carryCard').innerHTML=game.carrying?'<strong>Carrying:</strong> '+game.carrying.label:'<strong>Carrying:</strong> nothing';let w=$('world');w.innerHTML='';targets().forEach(t=>{let d=document.createElement('div');d.className='obj '+(t.kind==='child'?'childObj':t.kind==='pet'?'petObj':t.kind==='person'?'personObj':t.kind==='door'?'doorObj':t.kind==='danger'?'dangerObj':'');d.id='obj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=iconName(t);w.appendChild(d)});setFocus(null);};
+var baseRenderContainerV13=renderContainer;
+renderContainer=function(){let w=$('containerWorld');w.innerHTML='';containerTargets().forEach(t=>{let d=document.createElement('div');d.className='obj';d.id='cobj_'+t.id;Object.assign(d.style,{left:t.x+'%',top:t.y+'%',width:t.w+'%',height:t.h+'%'});d.textContent=iconName(t);w.appendChild(d)});$('containerFocus').innerHTML='<strong>Touching:</strong> nothing'};
+function migrateV13(){migrate();game.pendingCall=game.pendingCall||null;game.children.forEach(c=>{if(c.cause===undefined)c.cause='';if(c.lastApproachNeed===undefined)c.lastApproachNeed='';});game.adults.forEach(a=>{if(a.lastApproachNeed===undefined)a.lastApproachNeed='';});}
+var baseCreateGameV13=createGame;
+createGame=function(){baseCreateGameV13();migrateV13();saveGame(false);};
+saveGame=function(alertIt=true){if(!game)return;game.lastArea=area;game.lastRealTime=Date.now();localStorage.setItem(V13_KEY,JSON.stringify({game,area,speechOn,soundsOn,soundVolume}));if(alertIt)notice('Saved.')};
+loadGame=function(){let raw=localStorage.getItem(V13_KEY);if(!raw){alert('No saved game yet.');return}let d=JSON.parse(raw);game=d.game;area=d.area||game.lastArea||'living';speechOn=d.speechOn??true;soundsOn=d.soundsOn??true;soundVolume=d.soundVolume??.85;migrateV13();applyOfflineProgression();showGame()};
+resetGame=function(){localStorage.removeItem(V13_KEY);location.reload()};
+function addMessage(from,text,type='message',topic='general'){game.messages.unshift({from,text,day:game.day,time:game.time,unread:true,type,topic,thread:[{from,text}]});game.messages=game.messages.slice(0,100);if(type==='call'){game.pendingCall={from,text,topic};soundSequence(['phone','message'],650)}else one('message')}
+let openMessageIndex=0;
+function roleFromName(name){if(name==='Grandma')return'grandma';if(name==='Partner')return'partner';if(name==='School')return'teacher';if(name==='Nursery')return'nursery';if(name==='Doctor')return'doctor';if(name==='Hospital')return'nurse';if(name==='Police')return'police';if(name==='Fire Service')return'fire';if(name==='Adoption Centre')return'adoption';if(name==='Vet')return'vet';if(String(name).toLowerCase().includes('school'))return'teacher';if(String(name).toLowerCase().includes('nursery'))return'nursery';if(String(name).toLowerCase().includes('hospital'))return'nurse';return'friend'}
+openPhone=function(){let html='';if(game.pendingCall)html+=`<div class="notice"><strong>Incoming call from ${game.pendingCall.from}</strong><br>${game.pendingCall.text}</div>`;if(game.messages.length){html+=game.messages.map((m,i)=>`<div class="notice"><strong>${m.type==='call'?'Call':'Message'} from ${m.from}</strong>: ${m.text}<br><button onclick="openMessage(${i})">Open / Reply</button></div>`).join('')}else html+='No messages yet.';game.messages.forEach(m=>m.unread=false);$('phoneInfo').innerHTML=html;show('phone')};
+function openPendingCall(){if(!game.pendingCall){notice('No incoming call.');return}$('callTitle').textContent='Incoming call from '+game.pendingCall.from;$('callInfo').innerHTML=game.pendingCall.text;show('callScreen')}
+function answerCall(){if(!game.pendingCall){openPhone();return}let c=game.pendingCall;game.pendingCall=null;startConversation(c.from,roleFromName(c.from),null,c.topic||'call')}
+function declineCall(){if(!game.pendingCall){openPhone();return}addMessage('Missed call','You declined a call from '+game.pendingCall.from+'.','message','missed call');game.pendingCall=null;openPhone()}
+function callBackLater(){if(!game.pendingCall){openPhone();return}let c=game.pendingCall;game.pendingCall=null;addMessage(c.from,'Call me back when you can.','message','callback');openPhone()}
+function openLatestMessage(){if(!game.messages.length){notice('No messages.');return}openMessage(0)}
+function openMessage(i){openMessageIndex=i;let m=game.messages[i];if(!m){notice('No message selected.');return}m.thread=m.thread||[{from:m.from,text:m.text}];$('messageTitle').textContent='Message from '+m.from;$('messageBody').innerHTML=m.thread.map(x=>`<strong>${x.from}</strong>: ${x.text}`).join('<br>');$('messageReplyBox').value='';show('messageReply')}
+function sendMessageReply(){let m=game.messages[openMessageIndex];if(!m){openPhone();return}let txt=$('messageReplyBox').value.trim();if(!txt)return;m.thread=m.thread||[{from:m.from,text:m.text}];m.thread.push({from:'You',text:txt});let reply=generatedNaturalReply({name:m.from,role:roleFromName(m.from),topic:m.topic||'message',history:m.thread,mood:rand(['kind','busy','concerned'])},txt.toLowerCase());m.thread.push({from:m.from,text:reply});m.text=reply;m.unread=false;speak(reply);openMessage(openMessageIndex)}
+var baseStartConversationV13=startConversation;
+startConversation=function(name,role,id=null,topic='general'){convo={name,role,id,topic,mood:rand(['calm','kind','busy','tired','concerned']),log:[`${name}: ${greeting(role,name)}`]};renderConversation()};
+function topicFromText(l){if(/wrong|help|need|problem/.test(l))return'help';if(/ill|sick|cough|vomit|tummy|stomach|fever|temperature|allergy|rash|breath|dizzy|headache/.test(l))return'health';if(/hungry|food|eat/.test(l))return'hungry';if(/thirsty|drink|water/.test(l))return'thirsty';if(/shop|shopping|buy/.test(l))return'shopping';if(/school|homework|teacher|lesson|friend/.test(l))return'school';if(/nursery|nap|meal|play/.test(l))return'nursery';if(/adopt|adoption/.test(l))return'adoption';if(/car|come with|drive|travel/.test(l))return'travel';if(/babysit|watch/.test(l))return'care';if(/love|marry|relationship|date/.test(l))return'relationship';return'general'}
+function characterProblem(name,role){if(role==='grandma'){let g=game.adults.find(a=>a.id==='grandma');if(g&&!g.need)g.need=rand(['tired','thirsty','dizzy','company','headache']);return g?.need||'tired'}if(role==='partner'&&game.partner)return game.partner.need||'helping';return'help'}
+function generatedNaturalReply(c,l){let topic=topicFromText(l);let kid=child(childId)||game.children.find(x=>x.need)||game.children[0];let opener=rand(['Of course,','I hear you,','Okay,','Give me a second,','I want to help,']);if(c.role==='grandma'){if(topic==='help'||l.includes('what')||l.includes('wrong')){let p=characterProblem(c.name,'grandma');if(p==='dizzy')return opener+' I feel a bit dizzy and I could do with a drink and someone nearby.';if(p==='headache')return opener+' I have a headache and wondered if you could check on me.';if(p==='thirsty')return opener+' I am thirsty and feeling a little weak. Could you help me get a drink?';if(p==='company')return opener+' I am feeling a bit lonely today and wanted some company.';return opener+' I am tired today and could do with a little help.'}if(topic==='shopping'){let g=game.adults.find(a=>a.id==='grandma');if(g){g.area='frontGarden';g.locked=true}return opener+' I will come shopping and wait by the car.'}if(topic==='care'){let g=game.adults.find(a=>a.id==='grandma');if(g){game.babysitter='Grandma';g.locked=true;g.area=area}return opener+' I will babysit and call if anything happens.'}if(topic==='health')return opener+' tell me who is unwell, how long it has been happening, and whether they are eating and drinking.';return opener+' I am listening properly. Tell me what you need.'}
+ if(c.role==='doctor'||c.role==='nurse'){if(!kid)return opener+' I need to know who the patient is.';if(l.includes('discharge'))return dischargeChild(kid);if(l.includes('admit')||l.includes('breath')||l.includes('emergency'))return admitChild(kid);if(topic==='health'){if(kid.need==='ill'||kid.ill)return opener+' '+fullTreatment(kid,c.role==='nurse'?'Hospital':'Doctor');return opener+' '+kid.name+' sounds stable, but keep watching symptoms, fluids, food and sleep.'}return opener+' I need symptoms, duration, temperature, eating, drinking and sleep.'}
+ if(c.role==='teacher'){if(l.includes('enroll')&&kid){kid.enrolled=true;addReport(kid.name+' enrolled at school.');return opener+' '+kid.name+' is enrolled. I will send reports and call if they are unwell.'}return opener+' I can help with lessons, homework, friends, behaviour, trips, illness calls and reports.'}
+ if(c.role==='nursery'){if(l.includes('enroll')&&kid){kid.enrolled=true;addReport(kid.name+' enrolled at nursery.');return opener+' '+kid.name+' is enrolled at nursery.'}return opener+' we record meals, drinks, naps, comfort, play, allergies and development.'}
+ if(c.role==='child'){let ch=child(c.id)||kid;if(!ch)return'I am here.';if(ch.age<18)return rand(['Babble!','Mama!','Giggle.','Baba.']);if(topic==='health'||l.includes('wrong'))return ch.need?`I feel ${observe(ch)}.`:'I feel okay.';if(topic==='hungry')return'I am hungry. Can I have something to eat?';if(topic==='thirsty')return'I am thirsty. Can I have a drink?';return rand(['Okay.','Can we do something?','I was playing.','Can I have a snack?','Can we go somewhere?'])}
+ if(c.role==='partner'){if(topic==='care'){if(game.partner)game.partner.babysitting=true;return opener+' I can watch the children.'}if(topic==='shopping'){if(game.partner)game.partner.area='frontGarden';return opener+' I can come shopping or stay with the children.'}if(topic==='relationship')return opener+' our relationship matters to me. I want to talk about it properly.';return opener+' I am here and I can help.'}
+ if(c.role==='adoption'||c.role==='adoptionChild')return opener+' the adoption list lets you meet children, read their needs and adopt when ready.';if(c.role==='vet')return opener+' tell me which pet and what symptoms you noticed.';if(c.role==='police')return opener+' if anyone is unsafe, move away from danger and wait for help.';if(c.role==='fire')return opener+' if there is fire or smoke, leave now. Help is coming.';return generatedReply(c,l)}
+sendReply=function(){let txt=$('replyBox').value.trim();if(!txt)return;convo.log.push('You: '+txt);applyConversationEffects(convo,txt.toLowerCase());let r=generatedNaturalReply(convo,txt.toLowerCase());convo.log.push(`${convo.name}: ${r}`);speak(r);renderConversation()};
+function characterApproachEvents(){game.children.forEach(c=>{if(c.loc!==area||c.age<30||!c.need||c.lastApproachNeed===c.need)return;c.lastApproachNeed=c.need;let words='';if(c.need==='hungry')words="I'm hungry.";else if(c.need==='thirsty')words="I'm thirsty.";else if(c.need==='tired')words="I'm tired.";else if(c.need==='ill')words=c.ill==='stomach'?"My tummy hurts. I don't feel very well.":c.ill==='cold'?"I don't feel well. I've got a cough.":"I don't feel very well.";else if(c.need==='attention')words='Can you spend time with me?';if(words){notice(`${c.name} approaches you and says: ${words}`);remember(c.name+' told you: '+words)}});game.adults.forEach(a=>{if(a.area!==area||!a.need||a.lastApproachNeed===a.need)return;a.lastApproachNeed=a.need;let words=a.need==='thirsty'?'Could you make me a drink please?':a.need==='dizzy'?'I feel a bit dizzy.':a.need==='hungry'?'I could do with something to eat.':a.need==='headache'?'I have a headache.':'Could you sit with me for a bit?';notice(`${a.name} approaches you and says: ${words}`);remember(a.name+' told you: '+words)})}
+function useCareItemOnChild(it,c){let label=(it.label||it.type||'').toLowerCase();if(label.includes('thermometer')){one('beep');notice(assessment(c));return true}if(label.includes('medicine')){treat(c);return true}if(label.includes('sick bowl')){c.pos='with sick bowl';if(c.ill==='stomach'){soundSequence(['stomach','burp','vomit']);notice('You hold the sick bowl for '+c.name+'.')}else notice('You keep the sick bowl nearby for '+c.name+'.');return true}if(label.includes('towel')){one('clothes');notice('You use a towel to help clean and comfort '+c.name+'.');c.hygiene=clamp(c.hygiene+20,0,100);return true}if(label.includes('wipe')){one('wipes');notice('You clean '+c.name+' with wipes.');c.hygiene=100;if(c.need==='dirty')c.need='';return true}if(label.includes('water')||label.includes('juice')){one('drink');c.thirst=100;if(c.need==='thirsty')c.need='';notice(c.name+' drinks.');return true}return false}
+function playerEatDrink(it){let label=(it.label||it.type||'').toLowerCase();if(['snack','fruit','food','sandwich','meal ingredients','biscuits'].some(x=>label.includes(x))){game.player.hunger=100;if(game.player.need==='hungry')game.player.need='';one('eat');notice('You eat.');game.carrying=null;return true}if(['drink','juice','milk','water','cup','bottle'].some(x=>label.includes(x))){game.player.thirst=100;if(game.player.need==='thirsty')game.player.need='';one('drink');notice('You drink.');game.carrying=null;return true}if(label.includes('medicine')){if(game.player.need==='ill'){game.player.health='under treatment';game.player.illStage=Math.max(0,(game.player.illStage||1)-1);one('pill');notice('You take medicine.')}else notice('You do not need medicine right now.');game.carrying=null;return true}return false}
+var oldUseOnChildV13=useOnChild;
+useOnChild=function(it,c){if(!c)return;if(useCareItemOnChild(it,c)){game.carrying=null;advanceAction();updateSoundscape();render();return}oldUseOnChildV13(it,c)};
+var oldUseOrPlaceV13=useOrPlace;
+useOrPlace=function(){if(!game.carrying){notice('You are not carrying anything.');return}if(!current){if(playerEatDrink(game.carrying)){advanceAction();render();return}notice('Touch a place, child, pet, or person first.');return}oldUseOrPlaceV13()};
+var oldChildrenTickV13=childrenTick;
+childrenTick=function(){game.children.forEach(c=>{if(c.health==='admitted')return;if(c.health==='under treatment'&&Math.random()<.45){c.illStage--;if(c.illStage<=0){c.need='';c.ill='';c.health='recovering';addMessage('Health',c.name+' is recovering.')}}else if(c.need==='ill'&&c.health!=='under treatment'){if(Math.random()<.28)c.illStage=Math.min(4,c.illStage+1);if(c.illStage>=3)c.health='worse'}if(c.need)return;c.hunger-=rand([2,3,4,5]);c.thirst-=rand([2,3,4]);c.tired+=rand([1,2,3,4]);c.hygiene-=rand([1,2,3]);if(c.hunger<28)c.need='hungry';else if(c.thirst<25)c.need='thirsty';else if(c.tired>90)c.need='tired';else if(c.hygiene<25&&c.age<48)c.need='dirty';else if(Math.random()<.075){c.need='ill';c.ill=rand(['cold','stomach','ear','chest','sneeze']);c.illStage=1;c.health='poorly';c.cause=chooseIllnessCause(c.ill);addMessage('Health',describeIllness(c));soundSequence(soundForIllness(c.ill,c.illStage));}else if(Math.random()<.08)c.need='attention';moveChildByAge(c)})};
+var oldPlayerTickV13=playerTick;
+playerTick=function(){let p=game.player;p.hunger-=rand([2,3,4]);p.thirst-=rand([2,3,4]);p.tired+=rand([2,3,4]);p.stress+=game.children.length>3?2:1;if(!p.need){if(p.hunger<25)p.need='hungry';else if(p.thirst<25)p.need='thirsty';else if(p.tired>90)p.need='tired';else if(Math.random()<.035){p.need='ill';p.ill=rand(['cold','stomach','migraine','stress']);p.illStage=1;p.health='poorly';p.cause=chooseIllnessCause(p.ill);addMessage('Health','You are starting to feel unwell. Possible cause: '+p.cause);soundSequence(soundForIllness(p.ill,p.illStage));}}};
+var oldAdultsTickV13=adultsTick;
+adultsTick=function(){game.adults.forEach(a=>{if(a.area==='car'||a.locked)return;if(Math.random()<.10){a.area=rand(['living','kitchen','garden','hall']);a.x=20+Math.random()*55;a.y=30+Math.random()*40}if(!a.need&&Math.random()<.04){a.need=rand(['tired','hungry','thirsty','dizzy','headache','company']);addMessage(a.name,a.need==='company'?'Would you like to spend some time together?':a.need==='dizzy'?'I feel a bit dizzy today.':a.need==='thirsty'?'Could you help me get a drink?':'I could do with a little help today.')}});if(game.partner&&!game.partner.babysitting&&game.partner.area!=='car'&&Math.random()<.08){game.partner.area=rand(['living','kitchen','garden','frontGarden'])}};
+var oldRandomEventsV13=randomEvents;
+randomEvents=function(){let chance=.25;if(Math.random()>chance)return;let event=rand(['message','call','schoolTrip','birthday','grandma','bill','playdate','appointment','partner','work']);if(event==='message')addMessage(rand(['Grandma','Friend','School','Nursery']),rand(['How are you today?','Can we arrange a visit?','Just checking in.','Please check the reports.']),'message','random');if(event==='call'){let from=rand(['Grandma','School','Nursery','Doctor','Hospital','Friend']);addMessage(from,from+' is calling you.','call','incoming')}if(event==='schoolTrip')addMessage('School','A school trip is available. It costs 15.','message','school');if(event==='birthday')addMessage('Friend','Birthday party invitation for one of the children.','message','party');if(event==='grandma')addMessage('Grandma','Would you like me to babysit or come over?','message','help');if(event==='bill'){let cost=rand([20,35,50]);game.money-=cost;addMessage('Bills','Unexpected bill paid: '+cost)}if(event==='playdate')addMessage('Friend','Would one of the children like a play date?');if(event==='appointment')addMessage('Calendar','A health or family appointment is coming up.');if(event==='partner'&&game.partner)addMessage(game.partner.name,'Do you need help with the children?');if(event==='work'&&game.player.job!=='none'){game.money+=game.income;addMessage('Work','You earned '+game.income+'.')}};
+var oldAdvanceActionV13=advanceAction;
+advanceAction=function(){advanceTime();playerTick();childrenTick();adultsTick();petsTick();pregnancyTick();schoolNurseryTick();hospitalTick();randomEvents();moneyTick();carSafety();characterApproachEvents();saveGame(false)};
+checkSelectedChild=function(){let c=child(childId);if(!c)return;notice(assessment(c));if(c.need==='ill'){soundSequence(soundForIllness(c.ill,c.illStage));notice(describeIllness(c));}else if(c.activity==='sleeping')one('snore');else if(c.age<18)one('baby')};
+assessment=function(c){if(!c.need&&!c.ill)return c.name+' seems well.';return `${c.name}: ${observe(c)}. Health ${c.health}. Illness ${c.ill||'none'} stage ${c.illStage||0}. Possible cause: ${c.cause||'unknown'}.`};
+var oldObserveV13=observe;
+observe=function(c){if(c.health==='admitted')return'in hospital';if(c.health==='ready for discharge')return'ready for discharge';if(c.health==='recovering')return'recovering';if(c.need==='hungry')return c.age<36?'crying from hunger':'hungry';if(c.need==='thirsty')return'thirsty';if(c.need==='tired')return'tired';if(c.need==='dirty')return'needs changing';if(c.need==='attention')return'wants attention';if(c.need==='ill'){if(c.ill==='cold')return c.illStage>2?'coughing a lot and tired':'coughing and sniffly';if(c.ill==='stomach')return c.illStage>2?'vomiting risk and tummy upset, possible cause '+(c.cause||'unknown'):'tummy upset, possible cause '+(c.cause||'unknown');if(c.ill==='chest')return'bad cough';if(c.ill==='ear')return'upset and touching ear';if(c.ill==='allergy')return'allergic reaction';return'poorly'}if(c.activity==='sleeping')return'asleep';if(c.activity==='playing')return'playing';if(c.activity==='crawling')return'crawling';if(c.activity==='rolling')return'rolling';if(c.age<18)return'babbling';return'settled'};
+var oldFullTreatmentV13=fullTreatment;
+fullTreatment=function(c,place){if(!c)return'No child selected.';if(!c.need&&!c.ill)return c.name+' seems stable.';let diagnosis=diagnose(c);if(c.ill==='allergy'||c.illStage>=3||c.health==='worse')return admitChild(c)+' Diagnosis: '+diagnosis+'.';c.health='under treatment';c.illStage=Math.max(1,c.illStage||1);if(!c.cause)c.cause=chooseIllnessCause(c.ill);addReport(`${place}: ${c.name} diagnosed with ${diagnosis}. Treatment started. Cause: ${c.cause}.`);addMessage(place,`${c.name} is under treatment for ${diagnosis}.`);soundSequence(soundForIllness(c.ill,c.illStage));return `${c.name} has ${diagnosis}. Possible cause: ${c.cause}. Treatment started, with rest, fluids and follow-up.`};
+window.addEventListener('load',()=>{enhanceWorldV13();});
+
+</script>
+</body>
+</html>
